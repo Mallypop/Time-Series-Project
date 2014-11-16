@@ -59,8 +59,7 @@ data.pacf=(pacf(data.lm$residuals))
 library(nlme)
 #serial correlation model hast usually a first order autorregressive term as the lag 1 
 
-data.gls = gls(co2 ~ year,cor= corAR1(0.94)) #use lag one data.acf[2]
-
+data.gls = gls(co2 ~ year,cor= corAR1(acf(resid(data.lm))$acf[2])) #use lag one data.acf[2]))
 data.gls
 print(acf(data.gls$residuals))
 summary(data.gls)
@@ -75,6 +74,7 @@ confint(data.gls)
 
 plot(data.gls)
 plot(data.lm)
+
 #well spread is already smaller of variances 
 
 #seasonality
@@ -89,19 +89,18 @@ seas
 length(seas)
 
 
-dataseason.gls = gls(ts.x ~ time + factor(seas),cor= corAR1(0.985)) #use lag one data.acf[2]
+dataseason.gls = gls(ts.x ~ time + factor(seas),cor= corAR1(acf(resid(data.lm))$acf[2])) #use lag one data.acf[2]
 dataseason.gls
 
 par(mfrow=c(3,1))
 acf(dataseason.gls$residuals)[1]
-print(acf(dataseason.gls$residuals))
 pacf(dataseason.gls$residuals)
 spectrum(dataseason.gls$residuals)
 par(mfrow=c(1,1))
 ts.plot(dataseason.gls$residuals) 
 #puuhh gar nich mal soo gut
 
-ts.plot(cbind(ts.x, dataseason.gls$fitted),lty=1:2, col=c(1,2))
+ts.plot(cbind(ts.x, dataseason.gls$fitted),lty=1:2, col=c(1,2), main="Compare mean monthly data with gls model")
 legend(1960,400,c("Original", "Fitted for seasonality ?"),col=c(1,2),lty=c(1, 2))
 
 ##AIC #smallest value best value = best model (trade off blabla)
@@ -133,7 +132,7 @@ acf(ts.x)[2]
 smoothed.gls<-gls(ts.x~ time.norm + I(time.norm^2) +
                     COS[,1]+SIN[,1]+COS[,2]+SIN[,2]+
                     COS[,3]+SIN[,3]+COS[,4]+SIN[,4]+
-                    COS[,5]+SIN[,5]+COS[,6]+SIN[,6], corr=corAR1(0.893))
+                    COS[,5]+SIN[,5]+COS[,6]+SIN[,6], corr=corAR1(acf(resid(data.lm))$acf[2]))
 AIC(smoothed.gls) #even smaller
 
 smoothed.gls
@@ -152,7 +151,26 @@ names(smoothed.gls)
 str(smoothed.gls$residuals)
 smoothed.gls$residuals = as.vector(smoothed.gls$residuals)
 str(smoothed.gls$residuals)
+
+#test for autocorrelation
 dwt(smoothed.gls$residuals)
 
 #p value higher than 0.05, keep the null hyp 
 #keine autokorrelation
+
+par(mfrow=c(1,2))
+rm(ts.seasonallyadjusted)
+
+dec1=decompose(ts.x)
+plot(dec1)
+ts.seasonallyadjusted <- ts.x - dec1$seasonal
+#We can then plot the seasonally adjusted time series using the "plot()" function, by typing:
+  plot(ts.seasonallyadjusted, las=1, main="removed seasonal fluctuation")
+plot(ts.x, main="TS with seasonal fl.", las=1)
+*****
+##different correlation structures 
+  
+  #make a function for testing all possible p (0, 1,2,3) q = (0,1,2,3) for ARMA processes
+  
+
+  

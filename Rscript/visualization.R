@@ -12,7 +12,81 @@ colnames(data)= c("year", "co2")
 #visualize our data
 
 attach(data)
-plot(year, co2, type="l", col="cornflowerblue", las=1, xlab="Year", ylab="CO2 Conc. (ppm)", main="CO2 Concentration in the Atmosphere")
+plot(year, co2, add=T, type="n",las=1, xlab="Year", ylab="CO2 conc. (ppm)", main="CO2 concentration in the atmosphere")
+grid (NULL,NULL, lty = 6, col = "cornsilk2") 
+points(year, co2, col="cornflowerblue" )
+#cant see much, maybe smooth the curve 
+k <- 5
+lines(year,filter(co2, rep(1/k,k)),col = 'red', type="l", lwd = 3 )
+
+#check for data mistakes, ect. : visualize our data
+x <- co2
+op <- par(mfrow = c(1,2),
+          mar = c(5,4,1,2)+.1,
+          oma = c(0,0,2,0))
+hist(x, freq=F,
+     col = "light blue",
+     xlab = "",
+     main = "")
+qqnorm(x,
+       main = "")
+qqline(x, 
+       col = 'red')
+par(op)
+mtext("CO2 Concentration (ppm)", 
+      line = 2.5, 
+      font = 2, 
+      cex = 1.2)
+
+#differencing our variable
+x <- diff(co2)
+op <- par(mfrow = c(1,2),
+          mar = c(5,4,1,2)+.1,
+          oma = c(0,0,2,0))
+hist(x, 
+     col = "light blue",
+     xlab = "",
+     main = "")
+qqnorm(x,
+       main = "")
+qqline(x, 
+       col = 'red')
+par(op)
+mtext("CO2 Concentration (ppm) increments", 
+      line = 2.5, 
+      font = 2, 
+      cex = 1.2)
+
+
+op <- par(mfrow = c(3,1),
+          mar = c(2,4,1,2)+.1,
+          oma = c(0,0,2,0))
+acf(x,      xlab = "")
+pacf(x,     xlab = "")
+spectrum(x, xlab = "", main = "")
+par(op)
+mtext("CO2 Concentration (ppm) diagnostics", 
+      line = 2.5, 
+      font = 2, 
+      cex = 1.2)
+
+#autocorrelation
+#what it should look like, if you dont have autocorr. problems:
+n <- 200
+x <- rnorm(n)
+acf(x)
+#lag 0 is always y=1, because the data is compared with the true data, which are equal
+
+x <- co2
+acf(x)
+
+#make a monthly time series
+newco2=ts(co2, 1958,2014,12 )
+class(newco2)
+#decompose the time series into the trend, seasonal fluctiation and the random white noise
+dec = decompose(newco2)
+plot(dec)
+
 
 #fit the linear model, that CO2 concentrations are dependent from time ( in months ) for time period of 1958 until 2014
 
