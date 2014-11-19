@@ -137,11 +137,15 @@ AIC(smoothed.gls) #even smaller
 
 smoothed.gls
 summary(smoothed.gls)
+par(mfrow=c(1,1))
+ts.plot(cbind(ts.x, dataseason.gls$fitted, smoothed.gls$fitted), col=c(1,2,3), main="Compare mean monthly data with gls model")
+legend(1960,400,c("Original", "Included seasonality ", "Smoothed for seasonality"),col=c(1,2,3), pch=c(20,20,20))
 
-
-plot(year, dataseason.gls$fittedvalues,type="l")
 plot(year, co2, col="light grey")
-#residuals
+#residuals compare
+par(mfrow=c(1,1))
+plot(data.lm)
+plot(dataseason.gls)
 plot(smoothed.gls)
 library(car)
 
@@ -154,9 +158,30 @@ str(smoothed.gls$residuals)
 
 #test for autocorrelation
 dwt(smoothed.gls$residuals)
-
 #p value higher than 0.05, keep the null hyp 
 #keine autokorrelation
+
+#not independent:
+Box.test(smoothed.gls$residuals, type="Ljung-Box")
+#stationarity
+adf.test(smoothed.gls$fitted)  
+adf.test(smoothed.gls$residuals) 
+#stationary both 
+
+#2.1 fit predict values
+MyData=data.frame(time=seq(from=(1958),to=2024, by=0.1))
+G=predict(smoothed.gls, newdata=MyData) #poission: type ="LINK", binomial: type="RESPONSE"
+lines(MyData$time,G)
+length(G)
+length(MyData$time)
+par(mfrow=c(1,1))
+plot(year, co2, type="n",las=1, xlab="Year", ylab="CO2 conc. (ppm)", main="CO2 concentration in the atmosphere")
+grid (NULL,NULL, lty = 6, col = "cornsilk2") 
+points(year, co2, col="cornflowerblue" )
+
+
+
+
 
 par(mfrow=c(1,2))
 rm(ts.seasonallyadjusted)
@@ -172,5 +197,6 @@ plot(ts.x, main="TS with seasonal fl.", las=1)
   
   #make a function for testing all possible p (0, 1,2,3) q = (0,1,2,3) for ARMA processes
   
-
+*****
+  
   

@@ -132,6 +132,8 @@ class(ts.x)
 dec = decompose(ts.x)
 plot(dec)
 
+
+
 #now we can see the different parts of our future regression
 par(mfrow=c(3,3))
 
@@ -151,8 +153,12 @@ acf(diff2.x)
 pacf(diff2.x)
 spectrum(diff2.x, main="")
 
-plot.ts(diff2.x)
 par(mfrow=c(1,1))
+
+plot.ts(diff2.x)
 
 #### and NOW??!?! zwei mal differenciate und alles passt aber wie gehts weiter? 
 
+kpss.test(co2)
+kpss.test(diff.x)
+kpss.test(diff2.x)

@@ -1,0 +1,132 @@
+\documentclass[11pt, a4paper]{article} %or article has only section and below, book and report also have chapter: http://texblog.org/2007/07/09/documentclassbook-report-article-or-letter/
+
+\usepackage[utf8]{inputenc}  % use utf8 encoding of symbols such as umlaute for maximal compatibility across platforms
+
+\usepackage{caption}				% provides commands for handling caption sizes etc.
+%\usepackage[a4paper, left=25mm, right=20mm, top=25mm, bottom=20mm]{geometry}		 % to easily change margin widths: https://www.sharelatex.com/learn/Page_size_and_margins
+
+\usepackage[bottom]{footmisc}  % I love footnotes! And they should be down at the bottom of the page!
+\usepackage{graphicx}        % when using figures and alike
+\usepackage[hidelinks]{hyperref}		% for hyperreferences (links within the document: references, figures, tables, citations)
+
+\usepackage{euler}     % a math font, only for equations and alike; call BEFORE changing the main font; alternatives: mathptmx, fourier, 
+%\usepackage{gentium} % for a different font; you can also try: cantarell, charter, libertine, gentium, bera, ... http://tex.stackexchange.com/questions/59403/what-font-packages-are-installed-in-tex-live
+
+%------------------------------------------------------------------------------------------------------
+%------- text size settings --------------
+\setlength{\textwidth}{16cm}% 
+\setlength{\textheight}{25cm} %23 
+%(these values were used to fill the page more fully and thus reduce the number of pages!)
+\setlength{\topmargin}{-1.5cm} %0
+\setlength{\footskip}{1cm} %
+%\setlength{\hoffset}{0cm} %
+\setlength{\oddsidemargin}{1cm}%
+\setlength{\evensidemargin}{-.5cm}%
+\setlength{\parskip}{0cm} % Abstand zwischen Absätzen
+% ----------------------------------------------------------------
+\renewcommand{\textfraction}{0.1} % allows more space to graphics in float
+\renewcommand{\topfraction}{0.85}
+%\renewcommand{\bottomfraction}{0.65}
+\renewcommand{\floatpagefraction}{0.70}
+
+
+\frenchspacing %http://texwelt.de/wissen/fragen/1154/was-ist-french-spacing-was-macht-frenchspacing
+%------------------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------------------
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+
+\title{Time Series Analysis - A Tutorial}
+
+\author{Rosskopf,E.; Cordes, M.; Lumiko, J.}
+% for more control, multiple affiliations, line breaks and alike, use the authblk package!!
+
+\date{\today} % !!use package isodate for more control of date formatting!!
+
+\maketitle
+
+\abstract{Tutorial for time series analysis in R... }
+
+\tableofcontents
+
+\section{Introduction}
+
+Needs to be filled out properly with samples and explanations ( dont forget citing !! ).\\
+
+
+
+\begin{itemize}
+  \item Definition time series\\
+  \item examples in economy, nature, humans,.... \\
+  \item stochastic/deterministic with dormann revision\\
+  \item stationary / non stationary \\
+  \item regression: why time series regression instead of linear standrard regression\\
+  \item  where you need to use time series regression.\\
+\end{itemize}
+
+\section{Get started with the data}
+
+Our example 1 contains the CO2 concentration (ppm) in the Atmosphere at the station Mauna Loa on Hawaii. The dataset is composed out of mean monthly data. \\
+
+
+
+<<results=hide>>=
+co2month = read.table("C:/Users/schnuri/Desktop/Neuer Ordner/Dataset/co2month.txt")
+class(co2month)
+
+library(tseries)
+library(nlme)
+library(car)
+library(knitr)
+library(xtable)
+library(SweaveListingUtils)
+library(stats)
+@
+First set your working directory properly, load the dataset and download and check the packages required for this tutorial. The data stored as a dataframe needs to be transformed with the important columns into the class of a time series to continue working on it properly. If you have monthly data, you have to set the deltat of the function ts() to deltat=1/12 describing the sampling period parts between successive values xt and xt+1. Your time series should somehow look like table \ref{yourts}.\\
+
+<<results=tex>>=
+
+yourdata = co2month[,c(3,5)]
+colnames(yourdata)= c("year", "co2")
+attach(yourdata)
+xtable(head(yourdata), caption="Your original data")
+
+yourts=ts(co2, c(1958,3),c(2014,10), deltat=1/12)
+class(yourts)
+@
+
+<<results=tex, echo=FALSE, print=TRUE >>=
+
+print(xtable(yourts, digits=2, label="yourts",caption="Your time series for monthly mean data"), size="\\tiny")
+@
+
+
+It is important to get a quick overview of your data. Some simple plots for visualization are quite helpful. 
+
+<<label=fig1visualize,fig=TRUE, echo=FALSE>>=
+
+attach(yourdata)
+par(mfrow=c(1,1))
+plot(year, co2, type="n",las=1, xlab="Year", ylab="CO2 conc. (ppm)", main="CO2 concentration in the atmosphere")
+grid (NULL,NULL, lty = 6, col = "cornsilk2") 
+points(year, co2, col="cornflowerblue" )
+k <- 5
+lines(year,filter(co2, rep(1/k,k) ),col = 'red', type="l", lwd = 3)
+legend("topleft",c("simple moving average", "monthly mean data"), 
+                   pch=c(20,20), col=c("red", "cornflowerblue"))
+
+
+@
+
+The red line in plot \ref{fig1visualize} was computed with a simple moving average. It is not enough to just run a MA. 
+
+
+
+
+
+
+\clearpage
+ 
+\end{document}

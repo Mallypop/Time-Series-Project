@@ -34,10 +34,12 @@ co2timecomponents$seasonal
 #it seems that our seasonal component is positiv until the sommer months, were it turns to be negativ and turning to be positiv again in the winter
 
 #we can see the trend for the first year:
-ts.plot(co2timecomponents$seasonal[1:12])
+ts.plot(dec1$trend[1:12])
 #and we can see that this seasonal component is constant over all the years 
-ts.plot(aggregate(co2timecomponents$seasonal))
+ts.plot(aggregate(dec1$trend))
 
+
+names(dec1)
 #we can seasonally adjust our time series if we substract this component
 co2adjusted<- co2time-co2timecomponents$seasonal
 ts.plot(co2adjusted)
