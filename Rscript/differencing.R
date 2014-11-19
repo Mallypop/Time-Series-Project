@@ -129,7 +129,7 @@ acf(x, main="ACF for our data")
 ts.x=ts(x, 1958,2014,12 )
 class(ts.x)
 #decompose the time series into the trend, seasonal fluctiation and the random white noise
-dec = decompose(ts.x)
+dec = decompose(yourts)
 plot(dec)
 
 
