@@ -1,21 +1,16 @@
 \documentclass[11pt, a4paper]{article} %or article has only section and below, book and report also have chapter: http://texblog.org/2007/07/09/documentclassbook-report-article-or-letter/
-
-\usepackage[utf8]{inputenc}  % use utf8 encoding of symbols such as umlaute for maximal compatibility across platforms
-
-\usepackage{caption}				% provides commands for handling caption sizes etc.
-%\usepackage[a4paper, left=25mm, right=20mm, top=25mm, bottom=20mm]{geometry}		 % to easily change margin widths: https://www.sharelatex.com/learn/Page_size_and_margins
-
-\usepackage[bottom]{footmisc}  % I love footnotes! And they should be down at the bottom of the page!
-\usepackage{graphicx}        % when using figures and alike
-\usepackage[hidelinks]{hyperref}		% for hyperreferences (links within the document: references, figures, tables, citations)
-
-\usepackage{euler}     % a math font, only for equations and alike; call BEFORE changing the main font; alternatives: mathptmx, fourier, 
+\usepackage[utf8]{inputenc} % use utf8 encoding of symbols such as umlaute for maximal compatibility across platforms
+\usepackage{caption} % provides commands for handling caption sizes etc.
+%\usepackage[a4paper, left=25mm, right=20mm, top=25mm, bottom=20mm]{geometry} % to easily change margin widths: https://www.sharelatex.com/learn/Page_size_and_margins
+\usepackage[bottom]{footmisc} % I love footnotes! And they should be down at the bottom of the page!
+\usepackage{graphicx} % when using figures and alike
+\usepackage[hidelinks]{hyperref} % for hyperreferences (links within the document: references, figures, tables, citations)
+\usepackage{euler} % a math font, only for equations and alike; call BEFORE changing the main font; alternatives: mathptmx, fourier,
 %\usepackage{gentium} % for a different font; you can also try: cantarell, charter, libertine, gentium, bera, ... http://tex.stackexchange.com/questions/59403/what-font-packages-are-installed-in-tex-live
-
 %------------------------------------------------------------------------------------------------------
 %------- text size settings --------------
-\setlength{\textwidth}{16cm}% 
-\setlength{\textheight}{25cm} %23 
+\setlength{\textwidth}{16cm}%
+\setlength{\textheight}{25cm} %23
 %(these values were used to fill the page more fully and thus reduce the number of pages!)
 \setlength{\topmargin}{-1.5cm} %0
 \setlength{\footskip}{1cm} %
@@ -28,54 +23,44 @@
 \renewcommand{\topfraction}{0.85}
 %\renewcommand{\bottomfraction}{0.65}
 \renewcommand{\floatpagefraction}{0.70}
-
-
 \frenchspacing %http://texwelt.de/wissen/fragen/1154/was-ist-french-spacing-was-macht-frenchspacing
 %------------------------------------------------------------------------------------------------------
 %------------------------------------------------------------------------------------------------------
-
 \begin{document}
 \SweaveOpts{concordance=TRUE}
-
-
 \title{Time Series Analysis - A Tutorial}
-
 \author{Rosskopf,E.; Cordes, M.; Lumiko, J.}
 % for more control, multiple affiliations, line breaks and alike, use the authblk package!!
-
 \date{\today} % !!use package isodate for more control of date formatting!!
-
 \maketitle
-
 \abstract{Tutorial for time series analysis in R... }
-
 \tableofcontents
-
-\section{Introduction}
-
+\section{Introduction}%------------------------------------------------------------------------------------
 Needs to be filled out properly with samples and explanations ( dont forget citing !! ).\\
-
-
-
 \begin{itemize}
-  \item Definition time series\\
-  \item examples in economy, nature, humans,.... \\
-  \item stochastic/deterministic with dormann revision\\
-  \item stationary / non stationary \\
-  \item regression: why time series regression instead of linear standrard regression\\
-  \item  where you need to use time series regression.\\
+\item Definition time series\\
+\item examples in economy, nature, humans,.... \\
+\item stochastic/deterministic with dormann revision\\
+\item stationary / non stationary \\
+\item regression: why time series regression instead of linear standrard regression\\
+\item where you need to use time series regression.\\
 \end{itemize}
-
-\section{Get started with the data}
-
+\section{Getting started}%------------------------------------------------------------------------------------
+First set your working directory properly, load the dataset and download and check the packages required for this tutorial. 
+\subsection{Get started with the data}%------------------------------------------------------------------------------------
 Our example 1 contains the CO2 concentration (ppm) in the Atmosphere at the station Mauna Loa on Hawaii. The dataset is composed out of mean monthly data. \\
-
-
-
 <<results=hide>>=
-co2month = read.table("C:/Users/schnuri/Desktop/Neuer Ordner/Dataset/co2month.txt")
-class(co2month)
 
+url<-"ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_mm_mlo.txt"
+dest<-"~//Arbeitsflaeche/studium/Best Practice R/Time-Series-Project-master/Dataset/test.txt"
+
+download.file(url, dest ) 
+co2month=read.table(dest, skip=72)
+co2month
+@
+
+A few useful packages for time series analysis
+<<>>=
 library(tseries)
 library(nlme)
 library(car)
@@ -84,49 +69,134 @@ library(xtable)
 library(SweaveListingUtils)
 library(stats)
 @
-First set your working directory properly, load the dataset and download and check the packages required for this tutorial. The data stored as a dataframe needs to be transformed with the important columns into the class of a time series to continue working on it properly. If you have monthly data, you have to set the deltat of the function ts() to deltat=1/12 describing the sampling period parts between successive values xt and xt+1. Your time series should somehow look like table \ref{yourts}.\\
+and in:\\
 
+http://cran.r-project.org/web/views/TimeSeries.html\\
+
+Another Exemple Datasets are avaliable at:\\
+
+http://www.comp-engine.org/timeseries/browse-data-by-category\\
+https://datamarket.com/data/list/?q=provider:tsdl\\
+
+\subsection{Transforming your data into a Time Series}%-----------------------------------------------------------------------------------
+The data stored as a dataframe needs to be transformed with the important columns into the class of a time series to continue working on it properly. If you have monthly data you have to set the deltat of the function ts() to deltat=1/12 describing the sampling period parts between successive values xt and xt+1. Your time series should somehow look like table \ref{yourts}.\\
 <<results=tex>>=
-
 yourdata = co2month[,c(3,5)]
 colnames(yourdata)= c("year", "co2")
 attach(yourdata)
 xtable(head(yourdata), caption="Your original data")
-
 yourts=ts(co2, c(1958,3),c(2014,10), deltat=1/12)
 class(yourts)
 @
-
 <<results=tex, echo=FALSE, print=TRUE >>=
-
 print(xtable(yourts, digits=2, label="yourts",caption="Your time series for monthly mean data"), size="\\tiny")
 @
 
-
-It is important to get a quick overview of your data. Some simple plots for visualization are quite helpful. 
-
+\subsection{Data Visualization}%------------------------------------------------------------------------------------
+It is important to get a quick overview of your data. Some simple plots for visualization are quite helpful.
+\begin{figure}
+\centering
 <<label=fig1visualize,fig=TRUE, echo=FALSE>>=
-
-attach(yourdata)
 par(mfrow=c(1,1))
-plot(year, co2, type="n",las=1, xlab="Year", ylab="CO2 conc. (ppm)", main="CO2 concentration in the atmosphere")
-grid (NULL,NULL, lty = 6, col = "cornsilk2") 
-points(year, co2, col="cornflowerblue" )
+plot.ts(yourts,las=1, xlab="Year", ylab="CO2 conc. (ppm)", main="CO2 concentration in the atmosphere")
+grid (NULL,NULL, lty = 6, col = "cornsilk2")
+points(yourts, col="cornflowerblue" )
 k <- 5
 lines(year,filter(co2, rep(1/k,k) ),col = 'red', type="l", lwd = 3)
-legend("topleft",c("simple moving average", "monthly mean data"), 
-                   pch=c(20,20), col=c("red", "cornflowerblue"))
+legend("topleft",c("simple moving average", "monthly mean data"),
+pch=c(20,20), col=c("red", "cornflowerblue"))
+@
+\caption{Visualization of the CO2 Concentrations}
+\end{figure}
 
+The red line in plot \ref{fig1visualize} was computed with a simple moving average. It is not enough to just run a MA.
+
+\section{Decomposition of Time Series}%-----------------------------------------------------------------------------------------------------
+A time serie consists ofo 3 components; a trend component, an irregular (random) component and (if it is a seosonal ts) seasonal component.
+We can decompose the ts and plot these components:
+
+\begin{figure}
+\centering
+<<decompose, fig=TRUE>>=
+plot(decompose(yourts)) 
+
+@
+\caption{Decomposition of the CO2 Time Series}
+\end{figure}
+
+It seems that our data can probably be described using an additive model, since the random fluctuations in the data are roughly constant in size over time (constant seasonal component)
+
+\subsection{Decomposing Non-Seasonal Data}%----------------------------------------------------------------------------------------------------
+
+\subsection{Decomposing Seasonal Data}%----------------------------------------------------------------------------------------------------
+
+We can see each component with:
+<<>>=
+yourts.components<- decompose(yourts)
+@
+<<echo=FALSE>>=
+yourts.components$seasonal
+@
+
+It seems that our seasonal component is positiv until the sommer months, were it turns to be negativ and turning to be positiv again in the winter
+
+\begin{figure}
+\centering
+<< label=decomposition, fig=TRUE>>=
+par(mfrow=c(1,2))
+#we can see the trend for the first year:
+ts.plot(yourts.components$seasonal[1:12])
+
+<< label=seasonal.component, fig=TRUE>>=
+ts.plot(aggregate(yourts.components$seasonal))
+#and we can see that this seasonal component is constant over all the years
+
+@
+\caption{The seasonal component across the time}
+\end{figure}
+
+\section{Forecasts}%----------------------------------------------------------------------------------------------------
+\subsection{Forecasting using Exponential Smoothing}%-----------------------------------------------------------------------------------------------
+\subsection{Holt-Winters Exponential Smoothing}%-----------------------------------------------------------------------------------------------
+If we have a time series that can be described using an additive model,we can short-time forecast using exponential smoothing.\\
+Preconditions:forecast errors are uncorrelated and are normally distributed with mean zero and constant variance.
+<<>>=
+hw<-HoltWinters(co2time, beta = F, gamma = T)
+#the alpha value tells us the weight of the previous values for the forecasting
+#values of alpha that are close to 0 mean that little weight is placed on the most recent observations when making forecasts of future values
+#gamma is for the seasonality
+plot(hw)
+
+@
+Holtwinters just makes forecasts for the time period covered by the original data.If we want to forecast for the future, we need the packeged "forecast"
+
+<<>>=
+
+library(forecast)
+hw2<- forecast.HoltWinters(hw, h=12)
+plot(hw2)
+#for the next year  
+plot.forecast(hw2, main="Prediction for the next year")
+@
+
+\subsection{ARIMA Models}%-----------------------------------------------------------------------------------------------
+<<>>=
+au=auto.arima(yourts, ic = "bic")
+arima1=arima(yourts, order = c(au$arma[1],au$arma[6],au$arma[2]))
+library(forecast)
+fore1=forecast.Arima(arima1,h=10)
+plot.forecast(fore1)
+plot.ts(fore1)
 
 @
 
-The red line in plot \ref{fig1visualize} was computed with a simple moving average. It is not enough to just run a MA. 
 
+\subsection{Selecting a Candidate ARIMA Model}%-----------------------------------------------------------------------------------------------
+\subsection{Forecasting Using an ARIMA Model}%-----------------------------------------------------------------------------------------------
 
-
-
-
+\section{Links and Further Reading}%-----------------------------------------------------------------------------------------------
+\section{Acknowledgements}%------------------------------------------------------------------------------------------------------
+Don't forget to thank TeX and R and other opensource communities if you use their products! The correct way to cite R is shown when typing ``\texttt{citation()}'', and ``\texttt{citation("mgcv")}'' for packages.
 
 \clearpage
- 
 \end{document}
