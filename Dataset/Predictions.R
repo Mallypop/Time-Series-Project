@@ -1,3 +1,4 @@
+#Forecasts functions: 
 
 # Forecasting: from past values (x1,x2,x3,...,xn) want to predict future values x(n+k
 #), 
@@ -83,9 +84,6 @@ plot(forecast.arima, xlim=c(2010,2025), ylim=c(385,430))
 plot.forecast(forecasts2 ,xlim=c(2010,2025), ylim=c(385,430))
 
 plotForecastErrors(forecast.arima$residuals)
-
-shapiro.test(forecast.arima$residuals)
-#normally distributed
 
 
 

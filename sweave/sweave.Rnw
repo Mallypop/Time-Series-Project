@@ -52,7 +52,7 @@ Our example 1 contains the CO2 concentration (ppm) in the Atmosphere at the stat
 <<results=hide>>=
 
 url<-"ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_mm_mlo.txt"
-dest<-"~//Arbeitsflaeche/studium/Best Practice R/Time-Series-Project-master/Dataset/test.txt"
+dest<-"C:/Users/schnuri/Desktop/Neuer Ordner/Dataset/test.txt"
 
 download.file(url, dest ) 
 co2month=read.table(dest, skip=72)
@@ -68,6 +68,7 @@ library(knitr)
 library(xtable)
 library(SweaveListingUtils)
 library(stats)
+library(forecast)
 @
 and in:\\
 
@@ -151,17 +152,34 @@ ts.plot(yourts.components$seasonal[1:12])
 ts.plot(aggregate(yourts.components$seasonal))
 #and we can see that this seasonal component is constant over all the years
 
+yourts.seasonallyadjusted <- yourts - yourts.components$seasonal
+#We can then plot the seasonally adjusted time series using "plot()" 
+<< label=seasonallyadjusted, fig=TRUE>>=
+plot(yourts, main="TS with seasonal fl.", las=1)
+<< label=notseasonallyadjusted, fig=TRUE>>=
+plot(yourts.seasonallyadjusted, las=1, main="removed seasonal fluctuation")
+
+
 @
 \caption{The seasonal component across the time}
 \end{figure}
 
 \section{Forecasts}%----------------------------------------------------------------------------------------------------
+We have three different options to make ( up to now)
+\begin{enumerate}
+  \item predict
+  \item Holt Winters
+  \item Arima forecasts
+\end{enumerate}
+
+
 \subsection{Forecasting using Exponential Smoothing}%-----------------------------------------------------------------------------------------------
 \subsection{Holt-Winters Exponential Smoothing}%-----------------------------------------------------------------------------------------------
+
 If we have a time series that can be described using an additive model,we can short-time forecast using exponential smoothing.\\
 Preconditions:forecast errors are uncorrelated and are normally distributed with mean zero and constant variance.
 <<>>=
-hw<-HoltWinters(co2time, beta = F, gamma = T)
+hw<-HoltWinters(yourts)
 #the alpha value tells us the weight of the previous values for the forecasting
 #values of alpha that are close to 0 mean that little weight is placed on the most recent observations when making forecasts of future values
 #gamma is for the seasonality
@@ -170,29 +188,37 @@ plot(hw)
 @
 Holtwinters just makes forecasts for the time period covered by the original data.If we want to forecast for the future, we need the packeged "forecast"
 
-<<>>=
-
-library(forecast)
-hw2<- forecast.HoltWinters(hw, h=12)
-plot(hw2)
+<<fig=TRUE>>=
+hw1<- forecast.HoltWinters(hw, h=12)
+plot(hw1)
 #for the next year  
-plot.forecast(hw2, main="Prediction for the next year")
+plot.forecast(hw1, main="Prediction for the next year")
+#for next 10 years
+hw10<- forecast.HoltWinters(hw, h=120)
+plot.forecast(hw10, main="Prediction for the next year")
+
 @
 
 \subsection{ARIMA Models}%-----------------------------------------------------------------------------------------------
-<<>>=
+<<fig=TRUE>>=
 au=auto.arima(yourts, ic = "bic")
 arima1=arima(yourts, order = c(au$arma[1],au$arma[6],au$arma[2]))
-library(forecast)
 fore1=forecast.Arima(arima1,h=10)
 plot.forecast(fore1)
-plot.ts(fore1)
 
 @
 
 
 \subsection{Selecting a Candidate ARIMA Model}%-----------------------------------------------------------------------------------------------
 \subsection{Forecasting Using an ARIMA Model}%-----------------------------------------------------------------------------------------------
+
+compare both functions of forecasting: 
+<<fig=TRUE, eval=FALSE>>=
+
+par(mfrow=c(1,2))
+plot(forecast.arima, xlim=c(2010,2025), ylim=c(385,430))
+plot.forecast(forecasts2 ,xlim=c(2010,2025), ylim=c(385,430))
+@
 
 \section{Links and Further Reading}%-----------------------------------------------------------------------------------------------
 \section{Acknowledgements}%------------------------------------------------------------------------------------------------------

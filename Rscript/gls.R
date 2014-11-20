@@ -148,7 +148,7 @@ smoothed.gls<-gls(ts.x ~ time.norm + I(time.norm^2) +
                     COS[,3]+SIN[,3]+COS[,4]+SIN[,4]+
                     COS[,5]+SIN[,5]+COS[,6]+SIN[,6],
                   corr=corAR1(acf(dataseason.gls$residuals)$acf[2]))
-AIC(smoothed.gls) #even smaller
+AIC(smoothed.gls) #even smaller 
 
 smoothed.gls
 summary(smoothed.gls)
@@ -184,33 +184,34 @@ adf.test(smoothed.gls$residuals)
 #stationary both 
 
 #2.1 fit predict values
-newtime= ts(start=c(2014, 11),end=c(2024,12),deltat=1/12)
+newtime= ts(start=c(2014, 10),end=c(2024,12),deltat=1/12)
 pred = predict(smoothed.gls, newdata=newtime, se=T) #poission: type ="LINK", binomial: type="RESPONSE"
 
 TIME <- as.numeric(time)
 time.df <- data.frame(TIME=TIME, COS, SIN)
 colnames(time.df)[-1] <- paste0("V", 1:12)
 smoothed <- gls(as.numeric(yourts) ~ TIME + I(TIME^2) + V1 + V2 + V3 + V4 + V5 +V6 +V7+V8 +V9 +V10 +V11 +V12, corr=corAR1(acf(dataseason.gls$residuals)$acf[2]), data=time.df)
-new.df <- cbind.data.frame(TIME=as.numeric(time(newtime)), COS=COS[1:122,], SIN=SIN[1:122,])
+new.df <- cbind.data.frame(TIME=as.numeric(time(newtime)), COS=COS[1:123,], SIN=SIN[1:123,])
 colnames(new.df)[-1] <- paste0("V", 1:12)
 library(AICcmodavg)
 pred = predictSE(smoothed, newdata=new.df, se.fit=T)
-plot(yourts, xlim=c(1960, 2025), ylim=c(300, 450))
-lines(as.numeric(time(newtime)), pred$fit, col="red")
-
-length(pred)
-length(newdata)
-par(mfrow=c(1,1))
-plot(year, co2, type="n",las=1, xlab="Year", ylab="CO2 conc. (ppm)", main="CO2 concentration in the atmosphere")
+plot(yourts, type="n",las=1, xlim=c(1960, 2025), ylim=c(300, 450), xlab="Year", ylab="CO2 conc. (ppm)", main="CO2 concentration in the atmosphere")
 grid (NULL,NULL, lty = 6, col = "cornsilk2") 
-points(year, co2, col="cornflowerblue" )
+points(yourts ,type="l" )
 
-#plot this
-plot(newdata,fit)
-newfit= as.list(fit)
+lines(as.numeric(time(newtime)), pred$fit, col="red")
+F=(pred$fit)
+FSUP=(pred$fit+1.96*pred$se.fit) # make upper conf. int. 
+FSLOW=(pred$fit-1.96*pred$se.fit) # make lower conf. int. 
+lines(new.df$TIME, FSUP,lty=1, col="grey", lwd=3)
+lines(new.df$TIME, FSLOW,lty=1, col="grey", lwd=3)
+lines(new.df$TIME, F, lty=1, col="red", lwd=1)
 
-ts.plot(cbind(smoothed.gls$fitted), xlim=c(1958, 2030),col=c(1,2,3), main="Compare mean monthly data with gls model")
-legend(1960,400,c("Original", "Included seasonality ", "Smoothed for seasonality"),col=c(1,2,3), pch=c(20,20,20))
+
+legend("topleft",c("simple linear regression y~x", "monthly mean data"), 
+       pch=c(20,20), col=c("red", "cornflowerblue"))
+
+
 
  
 *****
