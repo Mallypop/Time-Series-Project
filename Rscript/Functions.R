@@ -40,4 +40,19 @@ testall = function(x){
   
 }
 
+###########################
+op <- par(mfrow = c(3,1),
+          mar = c(2,4,1,2)+.1,
+          oma = c(0,0,2,0))
+par(op)
+mtext("Model residual correlogram", 
+      line = 2.5, 
+      font = 2, 
+      cex = 1.2)
+correlogram = function (x) { 
 
+ACF= acf(resid(x),xlab = "")
+plot(ACF)
+}
+
+correlogram(data.lm)

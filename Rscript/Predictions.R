@@ -1,7 +1,14 @@
-#new model
-#braucht zuvor die sachen aus gls or differencing
+#Forecasts functions: 
 
-auto.arima(ts.x)
+# Forecasting: from past values (x1,x2,x3,...,xn) want to predict future values x(n+k
+#), 
+##holtwinters explanation: 
+#if alpha is near 1, little smoothing, at is approx. xt 
+# alpha is zero, highly smoothed estimates
+#a = 0.2 compromise figure, change in mean between t-1 and t likel smaller than variance
+ 
+library(forecast)
+auto.arima(ts.x)###if non-seasonal: bestfit 1,6,2 else seasonal 3,7,4 
 ARIMA(1,1,1)(2,1,2)[12]
 
 ts.arima = arima( ts.x , order=c(2,1,2))
@@ -9,25 +16,31 @@ ts.arima
 forecast.arima = forecast.Arima(ts.arima)
 
 par(mfrow=c(2,1))
+plot.arima(ts.arima)
 plot.forecast(forecast.arima)
 plot.forecast(forecasts2)
+plot(forecast(ts.arima))
 
+#holt winters forecasts
+#not specify aphla, beta, gamma to include errors, trend and seasonal component in the forecast
 
-#holt winters 
-
-forecasts <- HoltWinters(gls.seasonallyadjusted, beta=FALSE, gamma=FALSE)
+forecasts <- HoltWinters(ts.x)
 library( forecast)
 
 forecasts2 <- forecast.HoltWinters(forecasts,h=120)
 par(mfrow=c(1,1))
 plot.forecast(forecasts2)
+summary(forecasts2)
 
+#check for the autocorrelation of the future values
+ acf(forecasts2$residuals, lag.max=12)#how is the lag.max defined? 
 
- acf(forecasts2$residuals, lag.max=40)
-
- Box.test(forecasts2$residuals, lag=40, type="Ljung-Box")
-
+ Box.test(forecasts2$residuals, lag=11, type="Ljung-Box") # lag for season is df: m-1 ( 12-1)
 #there is high evidence that there are non-zero autocorr. 
+
+shapiro.test(forecasts2$residuals)
+#normally distributed
+
 
 plotForecastErrors <- function(forecasterrors)
 {
@@ -53,18 +66,18 @@ plotForecastErrors <- function(forecasterrors)
 }
 
 plotForecastErrors(forecasts2$residuals)
+#fits good
 
 
 
+#option of autmatized model selection by auto.arima 
 
-#new model
-
-auto.arima(ts.seasonallyadjusted)
+auto.arima(ts.x)
 #gives me perfect adjusted 
 
-ts.arima = arima( ts.seasonallyadjusted , order=c(3,2,4)) #function of order autom.
+ts.arima = arima( ts.x , order=c(1,1,1)) #function of order autom.
 ts.arima
-forecast.arima = forecast.Arima(ts.arima, h=120) #für 10 jahre
+forecast.arima = forecast.Arima(ts.arima, h=120) #für 10 jahre #automatizing 10*period
 
 par(mfrow=c(1,2))
 plot(forecast.arima, xlim=c(2010,2025), ylim=c(385,430))
@@ -72,5 +85,5 @@ plot.forecast(forecasts2 ,xlim=c(2010,2025), ylim=c(385,430))
 
 plotForecastErrors(forecast.arima$residuals)
 
-shapiro.test(forecast.arima$residuals)
-#normally distributed
+
+
