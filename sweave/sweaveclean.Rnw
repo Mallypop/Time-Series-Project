@@ -90,37 +90,29 @@ https://datamarket.com/data/list/?q=provider:tsdl\\
 You can first check for data mistakes and possible errors via visualizing your data more detailed, using some diagnostic plots like the hsitogram and the QQ plot will help. 
 
 <<label=fig1check,fig=TRUE, echo=FALSE>>=
+data = co2month[,c(3,5)]
+colnames(data)= c("year", "co2")
+attach(data)
 x <- co2
 op <- par(mfrow = c(1,2),
           mar = c(5,4,1,2)+.1,
           oma = c(0,0,2,0))
-hist(co2, freq=F,
-     col = "cornsilk",
-     xlab = "",
-     main = "")
-qqnorm(x,
-       main = "")
-qqline(x, 
-       col = 'red')
+hist(co2, freq=F, col = "cornsilk",xlab = "", main = "")
+qqnorm(x, main = ""); qqline(x,col = 'red')
 par(op)
-mtext("CO2 Concentration (ppm) Histogram and QQ Plot", 
-      line = 2.5, 
-      font = 2, 
-      cex = 0.8)
+mtext("CO2 Concentration (ppm) Histogram and QQ Plot", line = 2.5,font = 2,cex = 0.8)
 @
 
 
 \begin{figure}[H]
 \centering
-<<label=fig1data.lm,fig=TRUE, echo=FALSE>>=
-data = co2month[,c(3,5)]
-colnames(data)= c("year", "co2")
-attach(data)
-data.lm = lm( co2 ~ year)
+<<label=fig1datalm,fig=TRUE, echo=FALSE>>=
+
+datalm = lm( co2 ~ year)
 
 # fit predict values
 MyData=data.frame(year=seq(from=(1958),to=2014, by=0.1))
-pred=predict(data.lm, newdata=MyData, type="response", se=T) #poission: type ="LINK", binomial: type="RESPONSE"
+pred=predict(datalm, newdata=MyData, type="response", se=T) #poission: type ="LINK", binomial: type="RESPONSE"
 
 #plot the fitted values
 plot(year, co2, type="n",las=1, xlab="Year", ylab="CO2 conc. (ppm)", main="CO2 concentration in the atmosphere")
@@ -139,14 +131,12 @@ legend("topleft",c("simple linear regression y~x", "monthly mean data"),
 @
 \end{figure}
 
-In the plot of the data points in \ref{fig1data.lm} you can observe if you have outliers which could be biasing your model. \\
-Also if you try to simply run a linear model, you see that a poly-1 linear regression will not fit (\ref{fig1data.lm}. You will get not the true evidence of p-values. The autocorrelation factor will bias your model results. The standard errors are less than  their true values thus giving high statistical significance with a p-value smaller than it should be. The clue in statistical modelling is to present the correct statistical evidence, which would in the case of a linear model highly biased. 
+In the plot of the data points in \ref{fig1datalm} you can observe if you have outliers which could be biasing your model. \\
+Also if you try to simply run a linear model, you see that a poly-1 linear regression will not fit (\ref{fig1datalm}. You will get not the true evidence of p-values. The autocorrelation factor will bias your model results. The standard errors are less than  their true values thus giving high statistical significance with a p-value smaller than it should be. The clue in statistical modelling is to present the correct statistical evidence, which would in the case of a linear model highly biased. 
 
 <<results=tex>>=
-yourdata = co2month[,c(3,5)]
-colnames(yourdata)= c("year", "co2")
-attach(yourdata)
-xtable(head(yourdata), caption="Your original data")
+xtable(head(data), caption="Your original data")
+
 yourts=ts(co2, c(1958,3),c(2014,10), deltat=1/12)
 class(yourts)
 @
@@ -185,9 +175,8 @@ Another nice procedure is to run the autocorrelation (\ref{correlogram}) functio
 op <- par(mfrow = c(3,1),
           mar = c(2,4,1,2)+.1,
           oma = c(0,0,2,0))
-acf(x,      xlab = "")
-
-pacf(x,     xlab = "")
+acf(x, xlab = "")
+pacf(x, xlab = "")
 spectrum(x, xlab = "", main = "")
 par(op)
 mtext("CO2 Concentration (ppm) correlogram", 
@@ -198,10 +187,10 @@ mtext("CO2 Concentration (ppm) correlogram",
 op <- par(mfrow = c(3,1),
           mar = c(2,4,1,2)+.1,
           oma = c(0,0,2,0))
-acf(resid(data.lm),      xlab = "")
+acf(resid(datalm), xlab = "")
 
-pacf(resid(data.lm),     xlab = "")
-spectrum(resid(data.lm), xlab = "", main = "")
+pacf(resid(datalm),xlab = "")
+spectrum(resid(datalm), xlab = "", main = "")
 par(op)
 mtext("Model residual correlogram", 
       line = 2.5, 
@@ -214,8 +203,7 @@ mtext("Model residual correlogram",
 
 You can see in the plots of \ref{fig:correlogram} the difficulties with autocorrelation. \\
 Explain the acf , pacf, spectrum here. \\
-"There is a strong correlation at lag 1, a strong but weaker correlation at lag 2, and a noticeable correlation at lag 3. Such a correlation pattern is typical of an autoregressive process where most of
-the sequential dependence can be explained as a  flow-on effect from a dependence at lag 1. In an autoregressive time series, an independent error component, or \innovation" is associated with each time point. For an order p autoregressive time series, the error for any time point is obtained
+"There is a strong correlation at lag 1, a strong but weaker correlation at lag 2, and a noticeable correlation at lag 3. Such a correlation pattern is typical of an autoregressive process where most of the sequential dependence can be explained as a  flow-on effect from a dependence at lag 1. In an autoregressive time series, an independent error component, or innovation" is associated with each time point. For an order p autoregressive time series, the error for any time point is obtained
 by taking the innovation for that time point, and adding a linear combination of the innovations at the p previous time points. (For the present time series, initial indications are that p = 1 might capture most of the correlation structure.)"\\ (autosmooth.pdf)
 spectrum: easier to interpret the acf / log scaled / strong cycles where spectrum max. occurs 
 Here the highest maximum is at about 0.75. 1/0.75 = 12 meaning a 12 month cycle is occuring here .
@@ -227,7 +215,7 @@ The residuals in a time series are serially correlated. The ACF is waving and de
 A time serie consists of 3 components; a trend component, an irregular (random) component and (if it is a seosonal time series) seasonal component.
 We can decompose the ts and plot these components:
 
-\begin{figure}
+\begin{figure}[H]
 \centering
 <<decompose, fig=TRUE>>=
 plot(decompose(yourts)) 
@@ -241,10 +229,10 @@ Ehm seasonal data ist ja unsere data?
 
 We can see each component with:
 <<>>=
-yourts.components<- decompose(yourts)
+yourts_components<- decompose(yourts)
 @
 <<eval=FALSE>>=
-yourts.components$seasonal
+yourts_components$seasonal
 @
 
 It seems that our seasonal component is positiv until the sommer months, were it turns to be negativ and turning to be positiv again in the winter
@@ -254,18 +242,18 @@ It seems that our seasonal component is positiv until the sommer months, were it
 << label=decomposition, fig=TRUE>>=
 par(mfrow=c(1,2))
 #we can see the trend for the first year:
-ts.plot(yourts.components$seasonal[1:12])
+ts.plot(yourts_components$seasonal[1:12])
 
-<< label=seasonal.component, fig=TRUE>>=
-ts.plot(aggregate(yourts.components$seasonal))
+<< label=seasonal_component, fig=TRUE>>=
+ts.plot(aggregate(yourts_components$seasonal))
 #and we can see that this seasonal component is constant over all the years
 
-yourts.seasonallyadjusted <- yourts - yourts.components$seasonal
+yourts_seasonallyadjusted <- yourts - yourts_components$seasonal
 #We can then plot the seasonally adjusted time series using "plot()" 
 << label=seasonallyadjusted, fig=TRUE>>=
 plot(yourts, main="TS with seasonal fl.", las=1)
 << label=notseasonallyadjusted, fig=TRUE>>=
-plot(yourts.seasonallyadjusted, las=1, main="removed seasonal fluctuation")
+plot(yourts_seasonallyadjusted, las=1, main="removed seasonal fluctuation")
 
 
 @
@@ -323,7 +311,7 @@ At the Partial autocorrelation plot we do not observe a significant autocorrelat
 
 
 
-\sesction{Modelling the time series}
+\section{Modelling the time series}
 The best model for a time series needs to have residuals as white noise terms. 
 There are different ways to approach this task. 
 
@@ -349,7 +337,9 @@ hw<-HoltWinters(yourts)
 plot(hw)
 
 @
-Holtwinters just makes forecasts for the time period covered by the original data.If we want to forecast for the future, we need the packeged "forecast"
+
+Holtwinters just makes forecasts for the time period covered by the original data.If we want to forecast for the future, we need the packeged "forecast".\\
+
 \begin{figure}
 \centering
 <<fig=TRUE>>=
@@ -360,8 +350,8 @@ plot.forecast(hw1, main="Prediction for the next year",shadecols = "oldstyle")
 hw10<- forecast.HoltWinters(hw, h=120)
 plot.forecast(hw10, main="Prediction for the next 10 years", shadecols = "oldstyle")
 @
-caption{Forecasting using Holt Winters exponential smoothing}
-end{figure}
+\caption{Forecasting using Holt Winters exponential smoothing}
+\end{figure}
 
 Here the forecasts for 1913-1920 are plotted as a blue line, the 80% prediction interval as an orange shaded area, and the 95% prediction interval as a yellow shaded area.
 
@@ -371,7 +361,7 @@ To calculate a correlogram of the in-sample forecast errors for the CO2 Time ser
 
 \begin{figure}
 \centering
-<<>>=
+<<fig=TRUE>>=
 acf(hw10$residuals, lag.max=20)
 @
 \caption{Correlogram of the residuals.}
@@ -420,7 +410,7 @@ plotForecastErrors(hw10$residuals)
 The histogram of the time series shows that the forecast errors are roughly normally distributed and the mean seems to be close to zero. 
 
 
-\subsecttion{Seasonal Decomposition of Time Series by Loess}
+\subsection{Seasonal Decomposition of Time Series by Loess}
 Forecasting using stl objects:
 \begin{figure}
 \centering
@@ -428,7 +418,7 @@ Forecasting using stl objects:
 plot(stlf(yourts, lambda=0, h =120))
 (tslm(yourts~time(yourts)))
 @
-\caption{}
+\caption{Forecasting using Loess}
 \end{figure}
 
 \subsection{ARIMA Models}%-----------------------------------------------------------------------------------------------
@@ -482,12 +472,16 @@ ts.plot(Nile, pred$pred,
 \subsection{Forecasting Using an ARIMA Model}%-----------------------------------------------------------------------------------------------
 
 compare both functions of forecasting: 
+\begin{figure}
+\centering
 <<fig=TRUE, eval=FALSE>>=
 
 par(mfrow=c(1,2))
 plot(forecast.arima, xlim=c(2010,2025), ylim=c(385,430))
 plot.forecast(forecasts2 ,xlim=c(2010,2025), ylim=c(385,430))
 @
+\caption{Model Comparisons}
+\end{figure}
 
 \section{Links and Further Reading}%-----------------------------------------------------------------------------------------------
 \section{Acknowledgements}%------------------------------------------------------------------------------------------------------
@@ -495,3 +489,4 @@ Don't forget to thank TeX and R and other opensource communities if you use thei
 
 \clearpage
 \end{document}
+
