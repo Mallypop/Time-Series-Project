@@ -14,7 +14,10 @@ diagnostics <- function (x)
   stat.fit = adf.test(x$fitted);
   x$residualsvector = as.vector(x$residuals);
  autocorr= dwt(x$residualsvector) ; #check for autocorrelation
- indep=  Box.test(x$residuals, type="Ljung-Box") #check for independence 
+ indep=  Box.test(x$residuals, type="Ljung-Box") #check for independence
+  #lag for season is df: m-1 ( 12-1)
+  #write if seasonal = TRUE lag=12-1, else write nothing 
+  #there is high evidence that there are non-zero autocorr. 
   output = list(normality, stat.res, stat.fit, autocorr, indep)
   names (output) = c("norm. distrb. of residuals", "stationarity of residuals", "stationarity of fitted values", "autocorrelation of residuals", "independence of residuals")
   return ( output )
@@ -24,22 +27,33 @@ diagnostics(smoothed)
 
 
 ####################
+plotting the histogram with the normal distribution to see wether the errors of the forecast model are well distributed
 
 
-also we need to check for best model 
-after having performed different options of gls 
-
-we have a normal linear regression y ~ x 
-we have a simple gls y~x with AR(1)
-we have a simple gls y~x with AR(1) and seasonal factor which is seasfac=cycle(timeseries)
-we have a 2-polynomial gls with AR(1) and the seasonal effect with COS/SIN curve
-
-testall = function(x){
-  
-  ...  
-  
+plotForecastErrors <- function(forecasterrors)
+{
+  # make a histogram of the forecast errors:
+  mybinsize <- IQR(forecasterrors)/4
+  mysd   <- sd(forecasterrors)
+  mymin  <- min(forecasterrors) - mysd*5
+  mymax  <- max(forecasterrors) + mysd*3
+  # generate normally distributed data with mean 0 and standard deviation mysd
+  mynorm <- rnorm(10000, mean=0, sd=mysd)
+  mymin2 <- min(mynorm)
+  mymax2 <- max(mynorm)
+  if (mymin2 < mymin) { mymin <- mymin2 }
+  if (mymax2 > mymax) { mymax <- mymax2 }
+  # make a red histogram of the forecast errors, with the normally distributed data overlaid:
+  mybins <- seq(mymin, mymax, mybinsize)
+  hist(forecasterrors, col="red", freq=FALSE, breaks=mybins)
+  # freq=FALSE ensures the area under the histogram = 1
+  # generate normally distributed data with mean 0 and standard deviation mysd
+  myhist <- hist(mynorm, plot=FALSE, breaks=mybins)
+  # plot the normal curve as a blue line on top of the histogram of forecast errors:
+  points(myhist$mids, myhist$density, type="l", col="blue", lwd=2)
 }
 
+plotForecastErrors(forecasts2$residuals)
 ###########################
 
 

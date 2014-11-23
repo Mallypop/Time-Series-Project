@@ -139,13 +139,11 @@ for (i in 1:6) {
 
 #before add a quadratic term ( poly (x,2)), x = years
 
-time.norm <- (time(ts.x) - mean(time(ts.x)))/sd(time(ts.x)) 
-time.norm <- time(ts.x)
+
 ##why: 
 #x-mean(x)/sd(x) = standard normal distribution
-acf(dataseason.gls$residuals)[2]
 
-smoothed.gls<-gls(ts.x ~ time.norm + I(time.norm^2) +
+smoothed.gls<-gls(ts.x ~ time + I(time^2) +
                     COS[,1]+SIN[,1]+COS[,2]+SIN[,2]+
                     COS[,3]+SIN[,3]+COS[,4]+SIN[,4]+
                     COS[,5]+SIN[,5]+COS[,6]+SIN[,6],
@@ -161,59 +159,11 @@ legend(1960,400,c("Original", "Included seasonality ", "Smoothed for seasonality
 plot(year, co2, col="light grey")
 #residuals compare
 par(mfrow=c(1,1))
-plot(data.lm)
-plot(dataseason.gls)
-plot(smoothed.gls)
-library(car)
+plot(data.lm, which = 1:1)
+plot(dataseason.gls, which = 1:1)
+plot(smoothed.gls, which = 1:1)
 
-
-#perform durbin watson test on residuals of new model 
-names(smoothed.gls)
-str(smoothed.gls$residuals)
-smoothed.gls$residuals = as.vector(smoothed.gls$residuals)
-str(smoothed.gls$residuals)
-
-#test for autocorrelation
-dwt(smoothed.gls$residuals)
-#p value higher than 0.05, keep the null hyp 
-#keine autokorrelation
-yourts = ts.x
-#not independent:
-Box.test(smoothed.gls$residuals, type="Ljung-Box")
-#stationarity
-adf.test(smoothed.gls$fitted)  
-adf.test(smoothed.gls$residuals) 
-#stationary both 
-
-#2.1 fit predict values
-newtime= ts(start=c(2014, 10),end=c(2024,12),deltat=1/12)
-pred = predict(smoothed.gls, newdata=newtime, se=T) #poission: type ="LINK", binomial: type="RESPONSE"
-
-TIME <- as.numeric(time)
-time.df <- data.frame(TIME=TIME, COS, SIN)
-colnames(time.df)[-1] <- paste0("V", 1:12)
-smoothed <- gls(as.numeric(yourts) ~ TIME + I(TIME^2) + V1 + V2 + V3 + V4 + V5 +V6 +V7+V8 +V9 +V10 +V11 +V12, corr=corAR1(acf(dataseason.gls$residuals)$acf[2]), data=time.df)
-new.df <- cbind.data.frame(TIME=as.numeric(time(newtime)), COS=COS[1:123,], SIN=SIN[1:123,])
-colnames(new.df)[-1] <- paste0("V", 1:12)
-pred = predictSE(smoothed, newdata=new.df, se.fit=T)
-plot(yourts, type="n",las=1, xlim=c(1960, 2025), ylim=c(300, 450), xlab="Year", ylab="CO2 conc. (ppm)", main="CO2 concentration in the atmosphere")
-grid (NULL,NULL, lty = 6, col = "cornsilk2") 
-points(yourts ,type="l" )
-par(mfrow=c(1,1))
-lines(as.numeric(time(newtime)), pred$fit, col="red")
-F=(pred$fit)
-FSUP=(pred$fit+1.96*pred$se.fit) # make upper conf. int. 
-FSLOW=(pred$fit-1.96*pred$se.fit) # make lower conf. int. 
-lines(new.df$TIME, FSUP,lty=1, col="grey", lwd=3)
-lines(new.df$TIME, FSLOW,lty=1, col="grey", lwd=3)
-lines(new.df$TIME, F, lty=1, col="red", lwd=1)
-
-
-legend("topleft",c("forecast for 10 years", "monthly mean data"), 
-       pch=c(20,20), col=c("red", "black"))
-
-
-
+diagnostics(smoothed.gls)
  
 *****
 ##different correlation structures 
