@@ -9,7 +9,7 @@ so x will be the model and x$residuals and x$fitted are the other options we nee
 
 diagnostics <- function (x)
   {
-  normality = shapiro.test(x$residuals); #check for normal distributed values
+  normality = shapiro.test(x$residuals); #check for normal distributed values # 
   stat.res =  adf.test(x$residuals); #check both residuals and fitted of the model for stationarity
   stat.fit = adf.test(x$fitted);
   x$residualsvector = as.vector(x$residuals);
@@ -41,18 +41,5 @@ testall = function(x){
 }
 
 ###########################
-op <- par(mfrow = c(3,1),
-          mar = c(2,4,1,2)+.1,
-          oma = c(0,0,2,0))
-par(op)
-mtext("Model residual correlogram", 
-      line = 2.5, 
-      font = 2, 
-      cex = 1.2)
-correlogram = function (x) { 
 
-ACF= acf(resid(x),xlab = "")
-plot(ACF)
-}
 
-correlogram(data.lm)

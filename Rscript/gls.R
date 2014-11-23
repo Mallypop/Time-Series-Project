@@ -7,7 +7,7 @@ setwd("C:/Users/schnuri/Desktop/Neuer Ordner/Dataset/")
 #eliminate columns you dont need 
 
 library(tseries)
-
+library(nlme)
 data = co2month[,c(3,5)]
 colnames(data)= c("year", "co2")
 attach(data)
@@ -107,7 +107,9 @@ dataseason.gls
 par(mfrow=c(3,1))
 acf(dataseason.gls$residuals)[1]
 pacf(dataseason.gls$residuals)
-spectrum(dataseason.gls$residuals)
+spectrum(data.lm$residuals)
+A=(spectrum(data.lm$residuals))
+list(A$freq[A$spec==pmax(A$spec)])
 par(mfrow=c(1,1))
 ts.plot(dataseason.gls$residuals) 
 #puuhh gar nich mal soo gut
@@ -175,7 +177,7 @@ str(smoothed.gls$residuals)
 dwt(smoothed.gls$residuals)
 #p value higher than 0.05, keep the null hyp 
 #keine autokorrelation
-
+yourts = ts.x
 #not independent:
 Box.test(smoothed.gls$residuals, type="Ljung-Box")
 #stationarity
@@ -197,7 +199,7 @@ pred = predictSE(smoothed, newdata=new.df, se.fit=T)
 plot(yourts, type="n",las=1, xlim=c(1960, 2025), ylim=c(300, 450), xlab="Year", ylab="CO2 conc. (ppm)", main="CO2 concentration in the atmosphere")
 grid (NULL,NULL, lty = 6, col = "cornsilk2") 
 points(yourts ,type="l" )
-
+par(mfrow=c(1,1))
 lines(as.numeric(time(newtime)), pred$fit, col="red")
 F=(pred$fit)
 FSUP=(pred$fit+1.96*pred$se.fit) # make upper conf. int. 
@@ -207,8 +209,8 @@ lines(new.df$TIME, FSLOW,lty=1, col="grey", lwd=3)
 lines(new.df$TIME, F, lty=1, col="red", lwd=1)
 
 
-legend("topleft",c("simple linear regression y~x", "monthly mean data"), 
-       pch=c(20,20), col=c("red", "cornflowerblue"))
+legend("topleft",c("forecast for 10 years", "monthly mean data"), 
+       pch=c(20,20), col=c("red", "black"))
 
 
 
@@ -265,6 +267,31 @@ sqrt(diag(vcov(data.lm)))
 sqrt(diag(vcov(data.gls)))
 sqrt(diag(vcov(dataseason.gls)))
 sqrt(diag(vcov(smoothed.gls)))
+
+
 ###### still need to check for diff. correlation structures 
 
+
+ts0 <- gls(co2 ~ 1, data = data, method = "REML")
+ts1 <- gls(co2 ~ year, data = data, method = "REML")
+ts2 <- gls(co2 ~ year, data = data,
+           correlation = corARMA(form = ~ year, p = 1), method = "REML")
+ts3 <- gls(co2 ~ year, data = data,
+           correlation = corARMA(form = ~ year, p = 2), method = "REML")
+
+anova.ts= anova(ts0, ts1, ts2, ts3)
+anova.ts
+
+adding to gls: 
+  
+  check for corr structures: 
+  
+  model2 = update(model1, correlation= corARMA(q=2)) # first two lags exhibit non-zero correlations
+
+model3 = update( model1, collreation = corAR1()) 
+
+#error checking
+
+plot(model3, resid(., type="p")~fitted(.)| Mare)
+qqnorm( model3, ~resid(.)| Mare)
 

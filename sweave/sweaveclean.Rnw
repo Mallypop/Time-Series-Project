@@ -170,7 +170,7 @@ pch=c(20,20), col=c("red", "cornflowerblue"))
 
 The red line in plot \ref{fig1visualize} was computed with a simple moving average. It is not enough to just run a MA.\\
 
-
+"As these are time series data and probably violate the independence assumption of the model, the standard error is potentially too small. As the data are regularly spaced in time, we can easily employ the autocorrelation function to investigate residuals correlations in the model errors. The acf() function can be used for that, which produces a plot of the correlogram. " ( only copy paste - noch umschreiben)
 Another nice procedure is to run the autocorrelation (\ref{correlogram}) function with its complementary partial acf and the spectrum showing the spectral density of your time series at frequencies corresponding to the possibly approx. Fourier frequencies. \\ 
 
 
@@ -210,6 +210,13 @@ mtext("Model residual correlogram",
 
 You can see in the plots of \ref{fig:correlogram} the difficulties with autocorrelation. \\
 Explain the acf , pacf, spectrum here. \\
+"There is a strong correlation at lag 1, a strong but weaker correlation at lag 2, and a noticeable correlation at lag 3. Such a correlation pattern is typical of an autoregressive process where most of
+the sequential dependence can be explained as a  flow-on effect from a dependence at lag 1. In an autoregressive time series, an independent error component, or \innovation" is associated with each time point. For an order p autoregressive time series, the error for any time point is obtained
+by taking the innovation for that time point, and adding a linear combination of the innovations at the p previous time points. (For the present time series, initial indications are that p = 1 might capture most of the correlation structure.)"\\ (autosmooth.pdf)
+spectrum: easier to interpret the acf / log scaled / strong cycles where spectrum max. occurs 
+Here the highest maximum is at about 0.75. 1/0.75 = 12 meaning a 12 month cycle is occuring here .
+
+
 The residuals in a time series are serially correlated. The ACF is waving and decreases only slowly, which could be an identification of non-stationarity ( If the ACF would dropto zero quickly, the time series would be stationary). We stop all diagnostics here for our clearly wrong model and go on to investigate the different components of our tim series.\\
 
 \section{Decomposition of Time Series}%-----------------------------------------------------------------------------------------------------
