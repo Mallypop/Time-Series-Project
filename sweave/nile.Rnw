@@ -1,0 +1,291 @@
+\documentclass[11pt, a4paper]{article} %or article has only section and below, book and report also have chapter: http://texblog.org/2007/07/09/documentclassbook-report-article-or-letter/
+\usepackage[utf8]{inputenc} % use utf8 encoding of symbols such as umlaute for maximal compatibility across platforms
+\usepackage{caption} % provides commands for handling caption sizes etc.
+%\usepackage[a4paper, left=25mm, right=20mm, top=25mm, bottom=20mm]{geometry} % to easily change margin widths: https://www.sharelatex.com/learn/Page_size_and_margins
+\usepackage[bottom]{footmisc} % I love footnotes! And they should be down at the bottom of the page!
+\usepackage{float}%
+\usepackage{graphicx} % when using figures and alike
+\usepackage[hidelinks]{hyperref} % for hyperreferences (links within the document: references, figures, tables, citations)
+\usepackage{euler} % a math font, only for equations and alike; call BEFORE changing the main font; alternatives: mathptmx, fourier,
+%\usepackage{gentium} % for a different font; you can also try: cantarell, charter, libertine, gentium, bera, ... http://tex.stackexchange.com/questions/59403/what-font-packages-are-installed-in-tex-live
+%------------------------------------------------------------------------------------------------------
+%------- text size settings --------------
+\setlength{\textwidth}{16cm}%
+\setlength{\textheight}{25cm} %23
+%(these values were used to fill the page more fully and thus reduce the number of pages!)
+\setlength{\topmargin}{-1.5cm} %0
+\setlength{\footskip}{1cm} %
+%\setlength{\hoffset}{0cm} %
+\setlength{\oddsidemargin}{1cm}%
+\setlength{\evensidemargin}{-.5cm}%
+\setlength{\parskip}{0cm} % Abstand zwischen Absätzen
+% ----------------------------------------------------------------
+\renewcommand{\textfraction}{0.1} % allows more space to graphics in float
+\renewcommand{\topfraction}{0.85}
+%\renewcommand{\bottomfraction}{0.65}
+\renewcommand{\floatpagefraction}{0.70}
+
+\frenchspacing %http://texwelt.de/wissen/fragen/1154/was-ist-french-spacing-was-macht-frenchspacing
+%------------------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------------------
+
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+
+\title{Time Series Analysis - A Tutorial}
+\author{Rosskopf,E.; Cordes, M.; Lumiko, J.}
+% for more control, multiple affiliations, line breaks and alike, use the authblk package!!
+\date{\today} % !!use package isodate for more control of date formatting!!
+\maketitle
+\abstract{Tutorial for time series analysis in R... }
+
+\tableofcontents
+
+
+
+\section{Nile}
+\subsection{the Nile River Time Series}%------------------------------------------------------------------------------------------------------
+
+Our example 2 contains the Measurements of the annual flow of the river Nile [m3/s] at Ashwan from 1871 to 1970. The Nile river data are included in any standard distribution of R as a time series object (i.e., a vector containing the data together with information about start/end time and sampling frequency); a detailed description of the data is given in the help file, ?Nile. \\
+First we visualize our data typing:
+
+\begin{figure}
+\centering
+<<fig=TRUE>>=
+str(Nile)
+plot(Nile, main="Annual flow of the Nile", ylab="Flow [m3/s]", xlab="years")
+@
+\caption{Annual Flow of the Nile}
+\end{figure}
+
+Since there are annual observations, there is no indices of a cycle/ seasonality in the data. A non-seasonal time series consists of a trend and an irregular component. 
+To estimate the trend component of a non-seasonal time series that can be described using an additive model, it is common to use a smoothing method, such as calculating the simple moving average of the time series.
+
+The SMA() function in the “TTR” R package can be used to smooth time series data using a simple moving average. 
+\begin{figure}
+\centering
+<<fig=TRUE>>=
+library(TTR)
+plot(SMA(Nile,n=20))
+
+@
+\caption{Trend of the Annual Flow of the Nile}
+\end{figure}
+
+We can see that there was a negative trend until 1920 and that it becomes positiv since then. However it is difficult to make a clear statement of the trends, since there are high fluctuations in the data.\\
+
+
+Now we can procede plotting the correlograms:
+\begin{figure}
+\centering
+<<fig=TRUE>>=
+par(mfrow = c(1, 2))
+acf(Nile)
+pacf(Nile)
+par(mfrow = c(1, 1))
+@
+\caption{Autocorrelations and Partial autocorrelations.}
+\end{figure}
+
+We find a significant autocorrelation at the first lags only, that means that the autocorrelation is not constanst over the time. 
+At the Partial autocorrelation plot we do not observe a significant autocorrelation. 
+
+We can first fit an autoregression model to the Nile Time Series:
+\begin{figure}
+\centering
+<<fig=TRUE>>=
+ar(Nile) # selects order 2
+cpgram(ar(Nile)$resid)
+arima(Nile, c(2, 0, 0))
+
+@
+\caption{Cumulative Peridiogram of the residuals}
+\end{figure}
+
+Fitting a autoregressive model, we can see that the residuals are well placed.
+
+\subsubsection{Holt Winters exponential smoothing}
+
+\begin{figure}
+\centering
+<<fig=TRUE>>=
+library(forecast)
+hwn = HoltWinters(Nile, gamma = F)
+plot(hwn)
+
+@
+\caption{Holt Winters}
+\end{figure}
+
+\begin{figure}
+\centering
+<<fig=TRUE>>=
+forecast_nile = forecast.HoltWinters(hwn, h=10)
+plot.forecast(forecast_nile)
+
+@
+\caption{Holt Winter Forecasting}
+\end{figure}
+
+The forecasts are shown as a blue line, with the 80% prediction intervals as an orange shaded area, and the 95% prediction intervals as a yellow shaded area.
+
+
+<<>>=
+acf(forecast_nile$residuals, lag.max = 20)
+Box.test(forecast_nile$residuals, lag=20, type="Ljung-Box")
+
+@
+At the Ljung-Box test the p-value is 0.85, indicating that there is little evidence of non-zero autocorrelations in the in-sample forecast errors at lags 1-20.
+
+We should check that the forecast errors have constant variance over time, and are normally distributed with mean zero. We can do this by making a time plot of forecast errors, and a histogram of the distribution of forecast errors.
+
+<<echo=FALSE>>=
+plotForecastErrors <- function(forecasterrors)
+  {
+     # make a histogram of the forecast errors:
+     mybinsize <- IQR(forecasterrors)/4
+     mysd   <- sd(forecasterrors)
+     mymin  <- min(forecasterrors) - mysd*5
+     mymax  <- max(forecasterrors) + mysd*3
+     # generate normally distributed data with mean 0 and standard deviation mysd
+     mynorm <- rnorm(10000, mean=0, sd=mysd)
+     mymin2 <- min(mynorm)
+     mymax2 <- max(mynorm)
+     if (mymin2 < mymin) { mymin <- mymin2 }
+     if (mymax2 > mymax) { mymax <- mymax2 }
+     # make a red histogram of the forecast errors, with the normally distributed data overlaid:
+     mybins <- seq(mymin, mymax, mybinsize)
+     hist(forecasterrors, col="red", freq=FALSE, breaks=mybins)
+     # freq=FALSE ensures the area under the histogram = 1
+     # generate normally distributed data with mean 0 and standard deviation mysd
+     myhist <- hist(mynorm, plot=FALSE, breaks=mybins)
+     # plot the normal curve as a blue line on top of the histogram of forecast errors:
+     points(myhist$mids, myhist$density, type="l", col="blue", lwd=2)
+  }
+@
+
+
+\begin{figure}
+\centering
+<<fig=T>>=
+par(mfrow=c(1,2))
+plot.ts(forecast_nile$residuals);abline(h=0)
+plotForecastErrors(forecast_nile$residuals)
+@
+\caption{Forecast Errors}
+\end{figure}
+
+The time plot of forecast errors shows that the forecast errors have roughly constant variance over time. The histogram of forecast errors show that it is plausible that the forecast errors are normally distributed with mean zero and constant variance.
+
+\subsubsection{ARIMA}
+
+While exponential smoothing methods do not make any assumptions about correlations between successive values of the time series, in some cases you can make a better predictive model by taking correlations in the data into account. Autoregressive Integrated Moving Average (ARIMA) models include an explicit statistical model for the irregular component of a time series, that allows for non-zero autocorrelations in the irregular component.
+\begin{figure}
+\centering
+<<fig=TRUE>>=
+nile_arima = auto.arima(Nile)
+forecast_nile2 = forecast.Arima(nile_arima, h=10)
+plot.forecast(forecast_nile2)
+
+@
+\caption{Arima forecasting}
+\end{figure}
+
+Check for autocorrelations:
+\begin{figure}
+\centering
+<<fig=TRUE>>=
+acf(forecast_nile2$residuals, lag.max = 20)
+Box.test(forecast_nile2$residuals, lag=20, type="Ljung-Box")
+@
+\caption{acf of the residuals}
+\end{figure}
+
+\begin{figure}
+\centering
+<<fig=TRUE>>=
+par(mfrow=c(1,2))
+plot.ts(forecast_nile2$residuals); abline(h=0)
+plotForecastErrors(forecast_nile2$residuals)
+@
+\caption{Residuals and Errors}
+\end{figure}
+
+\subsubsection{Structural time series models}
+
+The function StructTS fits a model by maximum likelihood.
+<<>>=
+fit <- StructTS(Nile, type = "level")
+fit
+@
+The maximum likelihood estimates (MLEs) of the level and observation error variances, 1469 and 15099, respectively, are included in the output as the coefficients of fit. 
+
+\begin{figure}
+\centering
+<<fig=TRUE>>=
+par(mfrow = c(3, 1))
+plot(Nile)
+## local level model
+lines(fitted(fit), lty = "dashed", col=4)       # contemporaneous smoothing
+lines(tsSmooth(fit), lty = "dotted", col = 6)   # fixed-interval smoothing
+legend("bottomright" ,col = c(4,6),c("filtered","smoothed"), lty=c("dashed", "dotted"), bty="n", cex=0.8)
+plot(residuals(fit)); abline(h = 0, lty = 3)
+## local trend model
+(fit2 <- StructTS(Nile, type = "trend")) ## constant trend fitted
+pred <- predict(fit, n.ahead = 30)
+## with 95% confidence interval
+ts.plot(Nile, pred$pred,
+        pred$pred + 1.96*pred$se, pred$pred -1.96*pred$se, col=c(1,2,1))
+par(mfrow=c(1,1))
+
+@
+\caption{Fitting a Structural Model}
+\end{figure}
+
+The function tsdiag can be called on an object of class StructTS to obtain diagnostic plots based on the standardized one-step-ahead forecast errors.
+\begin{figure}
+\centering
+<<fig=TRUE>>=
+tsdiag(fit)
+tsdiag(fit2)
+
+@
+\caption{Models diagnostics}
+\end{figure}
+
+Forecasts for structural time series, as objects of class StructTS, can be obtained by either the method function predict or forecast in package forecast (Hyndman 2011; Hyndman and Khandakar 2008). This package provides also a convenient plot method function for the resulting object of class forecast. Figure \ref{Forecasted values}, obtained with the code below, shows the forecasted Nile river data until 1980, togeher with 50% and 90% probability intervals.
+
+\begin{figure}
+\centering
+<<label=Forecasted values, fig=TRUE>>=
+library(forecast)
+plot(forecast(fit2, level = c(50,90), h = 10), xlim = c(1950, 1980), shadecols = "oldstyle")
+@
+\caption{Forecasted values}
+\end{figure}
+
+\subsubsection{The local level model with package dlm }
+A polynomial DLM (a local level model is a polynomial DLM of order 1, a local linear trend is a polynomial DLM of order 2), is easily defined in dlm through the function dlmModPoly.The function simulates one draw from the posterior distribution of the state vectors.
+\begin{figure}
+\centering
+<<fig=TRUE>>=
+library(dlm)
+
+nile_mod <- dlmModPoly(1, dV = 15099.8, dW = 1468.4) #values taken from the coefficients of fit
+nile_filt <- dlmFilter(Nile, nile_mod)
+nile_smooth <- dlmSmooth(nile_filt) # estimated "true" level
+plot(cbind(Nile, nile_smooth$s[-1]), plot.type = "s",
+     col = c("black", "red"), ylab = "Level",
+     main = "Nile river", lwd = c(2, 2)) 
+for (i in 1:10) # 10 simulated "true" levels 
+    lines(dlmBSample(nile_filt[-1]), lty=2, col="blue")
+@
+\caption{dlm Model}
+\end{figure}
+
+
+\end{document}
+
+
