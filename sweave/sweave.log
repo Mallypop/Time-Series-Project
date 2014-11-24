@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2013.10.23)  20 NOV 2014 13:33
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2013.10.23)  23 NOV 2014 14:38
 entering extended mode
 **sweave.tex
 ("C:\Users\schnuri\Desktop\Neuer Ordner\sweave\sweave.tex"
@@ -838,200 +838,79 @@ LaTeX Font Info:    Try loading font information for U+euex on input line 37.
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\ueuex.fd"
 File: ueuex.fd 2013/01/14 v3.01 Euler extra symbols
 )
-("C:\Users\schnuri\Desktop\Neuer Ordner\sweave\sweave.toc"
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 3.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 3.
-)
+("C:\Users\schnuri\Desktop\Neuer Ordner\sweave\sweave.toc")
 \tf@toc=\write5
-
-Underfull \hbox (badness 10000) in paragraph at lines 40--41
-
- []
-
-LaTeX Font Info:    Try loading font information for TS1+aer on input line 42.
-(C:/PROGRA~1/R/R-31~1.2/share/texmf/tex/latex\ts1aer.fd
-File: ts1aer.fd 
-)
-LaTeX Font Info:    Font shape `TS1/aer/m/n' in size <10> not available
-(Font)              Font shape `TS1/cmr/m/n' tried instead on input line 42.
-
-Underfull \hbox (badness 10000) in paragraph at lines 42--43
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 43--44
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 44--45
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 45--46
-
- []
-
 
 Underfull \hbox (badness 10000) in paragraph at lines 46--47
 
  []
 
+LaTeX Font Info:    Try loading font information for T1+aett on input line 50.
+("C:\Program Files\MiKTeX 2.9\tex\latex\ae\t1aett.fd"
+File: t1aett.fd 1997/11/16 Font definitions for T1/aett.
+)
+Underfull \hbox (badness 10000) in paragraph at lines 61--62
 
-Underfull \hbox (badness 10000) in paragraph at lines 47--48
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 63--64
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 65--66
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 67--69
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 71--73
 
  []
 
 [1
 
 {C:/Users/schnuri/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
-Underfull \hbox (badness 10000) in paragraph at lines 52--54
-
- []
-
-LaTeX Font Info:    Try loading font information for T1+aett on input line 54.
-("C:\Program Files\MiKTeX 2.9\tex\latex\ae\t1aett.fd"
-File: t1aett.fd 1997/11/16 Font definitions for T1/aett.
-)
-Underfull \hbox (badness 10000) in paragraph at lines 76--77
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 78--79
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 80--81
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 82--84
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 86--88
-
- []
-
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <10.95> on input line 98.
-[2] <sweave-fig1visualize.pdf, id=104, 433.62pt x 433.62pt>
+(Font)              <10.95> on input line 83.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 106.
+
+<sweave-fig1visualize.pdf, id=46, 433.62pt x 433.62pt>
 File: sweave-fig1visualize.pdf Graphic file (type pdf)
 
 <use sweave-fig1visualize.pdf>
-Package pdftex.def Info: sweave-fig1visualize.pdf used on input line 193.
+Package pdftex.def Info: sweave-fig1visualize.pdf used on input line 178.
 (pdftex.def)             Requested size: 364.19664pt x 364.21185pt.
+ [2]
+
+LaTeX Warning: Reference `fig1visualize' on page 3 undefined on input line 182.
 
 
-LaTeX Warning: Reference `fig1visualize' on page 3 undefined on input line 197.
-
-
-<sweave-decompose.pdf, id=105, 433.62pt x 433.62pt>
+<sweave-decompose.pdf, id=53, 433.62pt x 433.62pt>
 File: sweave-decompose.pdf Graphic file (type pdf)
  <use sweave-decompose.pdf>
-Package pdftex.def Info: sweave-decompose.pdf used on input line 211.
+Package pdftex.def Info: sweave-decompose.pdf used on input line 196.
 (pdftex.def)             Requested size: 364.19664pt x 364.21185pt.
 
-[3] [4 <C:/Users/schnuri/Desktop/Neuer Ordner/sweave/sweave-fig1visualize.pdf>]
-[5 <C:/Users/schnuri/Desktop/Neuer Ordner/sweave/sweave-decompose.pdf>]
-[6] <sweave-decomposition.pdf, id=138, 433.62pt x 433.62pt>
-File: sweave-decomposition.pdf Graphic file (type pdf)
-
-<use sweave-decomposition.pdf>
-Package pdftex.def Info: sweave-decomposition.pdf used on input line 360.
+<sweave-008.pdf, id=54, 433.62pt x 433.62pt>
+File: sweave-008.pdf Graphic file (type pdf)
+ <use sweave-008.pdf>
+Package pdftex.def Info: sweave-008.pdf used on input line 236.
+(pdftex.def)             Requested size: 364.19664pt x 364.21185pt.
+ [3 <C:/Users/schnuri/Desktop/Neuer Ordner/sweave/sweave-fig1visualize.pdf>] [4
+ <C:/Users/schnuri/Desktop/Neuer Ordner/sweave/sweave-decompose.pdf>]
+<sweave-009.pdf, id=80, 433.62pt x 433.62pt>
+File: sweave-009.pdf Graphic file (type pdf)
+ <use sweave-009.pdf>
+Package pdftex.def Info: sweave-009.pdf used on input line 253.
 (pdftex.def)             Requested size: 364.19664pt x 364.21185pt.
 
-
-LaTeX Warning: File `sweave-seasonal.component' not found on input line 370.
-
-
-! LaTeX Error: Unknown graphics extension: .component.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.370 \includegraphics{sweave-seasonal.component}
-                                                 
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-<sweave-seasonallyadjusted.pdf, id=139, 433.62pt x 433.62pt>
-File: sweave-seasonallyadjusted.pdf Graphic file (type pdf)
-
-<use sweave-seasonallyadjusted.pdf>
-Package pdftex.def Info: sweave-seasonallyadjusted.pdf used on input line 376.
-(pdftex.def)             Requested size: 364.19664pt x 364.21185pt.
-
-<sweave-notseasonallyadjusted.pdf, id=140, 433.62pt x 433.62pt>
-File: sweave-notseasonallyadjusted.pdf Graphic file (type pdf)
-
-<use sweave-notseasonallyadjusted.pdf>
-Package pdftex.def Info: sweave-notseasonallyadjusted.pdf used on input line 38
-4.
-(pdftex.def)             Requested size: 364.19664pt x 364.21185pt.
-
-
-LaTeX Warning: Float too large for page by 617.14682pt on input line 386.
-
-<sweave-014.pdf, id=141, 433.62pt x 433.62pt>
-File: sweave-014.pdf Graphic file (type pdf)
- <use sweave-014.pdf>
-Package pdftex.def Info: sweave-014.pdf used on input line 426.
-(pdftex.def)             Requested size: 364.19664pt x 364.21185pt.
- [7] [8 <C:/Users/schnuri/Desktop/Neuer Ordner/sweave/sweave-decomposition.pdf>
- <C:/Users/schnuri/Desktop/Neuer Ordner/sweave/sweave-seasonallyadjusted.pdf> <
-C:/Users/schnuri/Desktop/Neuer Ordner/sweave/sweave-notseasonallyadjusted.pdf>]
-
-<sweave-015.pdf, id=172, 433.62pt x 433.62pt>
-File: sweave-015.pdf Graphic file (type pdf)
- <use sweave-015.pdf>
-Package pdftex.def Info: sweave-015.pdf used on input line 438.
-(pdftex.def)             Requested size: 364.19664pt x 364.21185pt.
- [9 <C:/Users/schnuri/Desktop/Neuer Ordner/sweave/sweave-014.pdf>] [10 <C:/User
-s/schnuri/Desktop/Neuer Ordner/sweave/sweave-015.pdf>]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 449.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 449.
-
-("C:\Users\schnuri\Desktop\Neuer Ordner\sweave\sweave.aux")
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 449.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 449.
-Package rerunfilecheck Info: File `sweave.out' has not changed.
-(rerunfilecheck)             Checksum: 3502771CDB76A231F6B01BAB5C2B7B74;1116.
-
-
-LaTeX Warning: There were undefined references.
-
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 449.
- ) 
-Here is how much of TeX's memory you used:
- 7777 strings out of 493921
- 117237 string characters out of 3147275
- 216938 words of memory out of 3000000
- 10873 multiletter control sequences out of 15000+200000
- 39727 words of font info for 102 fonts, out of 3000000 for 9000
- 841 hyphenation exceptions out of 8191
- 36i,8n,38p,7327b,476s stack positions out of 5000i,500n,10000p,200000b,50000s
-{C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/cm-super/cm-super-ts1.enc}<C:/Pr
-ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Fi
-les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKT
-eX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fo
-nts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1
-/public/amsfonts/cm/cmr17.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/a
-msfonts/cm/cmr6.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm
-/cmsltt10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt1
-0.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/cm-super/sfrm1000.pfb>
-Output written on sweave.pdf (10 pages, 272725 bytes).
-PDF statistics:
- 232 PDF objects out of 1000 (max. 8388607)
- 36 named destinations out of 1000 (max. 500000)
- 168 words of extra memory for PDF output out of 10000 (max. 10000000)
-
+!pdfTeX error: pdflatex.exe (file C:/Users/schnuri/Desktop/Neuer Ordner/sweave/
+sweave-010.pdf): PDF inclusion: required page does not exist <0>
+ ==> Fatal error occurred, no output PDF file produced!

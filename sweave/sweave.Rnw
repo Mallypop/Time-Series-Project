@@ -36,23 +36,17 @@
 \abstract{Tutorial for time series analysis in R... }
 \tableofcontents
 \section{Introduction}%------------------------------------------------------------------------------------
-Needs to be filled out properly with samples and explanations ( dont forget citing !! ).\\
-\begin{itemize}
-\item Definition time series\\
-\item examples in economy, nature, humans,.... \\
-\item stochastic/deterministic with dormann revision\\
-\item stationary / non stationary \\
-\item regression: why time series regression instead of linear standrard regression\\
-\item where you need to use time series regression.\\
-\end{itemize}
+
+
+
 \section{Getting started}%------------------------------------------------------------------------------------
 First set your working directory properly, load the dataset and download and check the packages required for this tutorial. 
 \subsection{Get started with the data}%------------------------------------------------------------------------------------
 Our example 1 contains the CO2 concentration (ppm) in the Atmosphere at the station Mauna Loa on Hawaii. The dataset is composed out of mean monthly data. \\
-<<results=hide>>=
+<<results=hide, echo=FALSE>>=
 
 url<-"ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_mm_mlo.txt"
-dest<-"~//Arbeitsflaeche/studium/Best Practice R/Time-Series-Project-master/Dataset/test.txt"
+dest<-"C:/Users/schnuri/Desktop/Neuer Ordner/Dataset/run.txt"
 
 
 download.file(url, dest ) 
@@ -113,7 +107,7 @@ pch=c(20,20), col=c("red", "cornflowerblue"))
 The red line in plot \ref{fig1visualize} was computed with a simple moving average. It is not enough to just run a MA.
 
 \section{Decomposition of Time Series}%-----------------------------------------------------------------------------------------------------
-A time serie consists ofo 3 components; a trend component, an irregular (random) component and (if it is a seosonal ts) seasonal component.
+A time serie consists of 3 components; a trend component, an irregular (random) component and (if it is a seosonal ts) seasonal component.\\
 We can decompose the ts and plot these components:
 
 \begin{figure}
@@ -130,7 +124,7 @@ It seems that our data can probably be described using an additive model, since 
 
 \subsection{Decomposing Non-Seasonal Data}%----------------------------------------------------------------------------------------------------
 
-Our example 2 contains the Measurements of the annual flow of the river Nile at Ashwan 1871â€“1970. The dataset is in the Package {datasets}. \\
+Our example 2 contains the Measurements of the annual flow of the river Nile at Ashwan 1871 \- €“1970. The dataset is in the Package {datasets}. \\
 First we visualize our data:
 \begin{figure}
 \centering

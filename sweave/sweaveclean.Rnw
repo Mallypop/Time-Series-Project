@@ -37,15 +37,7 @@
 \abstract{Tutorial for time series analysis in R... }
 \tableofcontents
 \section{Introduction}%------------------------------------------------------------------------------------
-Needs to be filled out properly with samples and explanations ( dont forget citing !! ).\\
-\begin{itemize}
-\item Definition time series\\
-\item examples in economy, nature, humans,.... \\
-\item stochastic/deterministic with dormann revision\\
-\item stationary / non stationary \\
-\item regression: why time series regression instead of linear standrard regression\\
-\item where you need to use time series regression.\\
-\end{itemize}
+
 \section{Getting started}%------------------------------------------------------------------------------------
 First set your working directory properly, load the dataset and download and check the packages required for this tutorial. 
 \subsection{Get started with the data}%------------------------------------------------------------------------------------

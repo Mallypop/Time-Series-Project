@@ -47,11 +47,6 @@ pacf(forecast10$residuals)
 diagnostics(forecast10)
 
 #3. auto arima 
-#option of autmatized model selection by auto.arima 
-
-autoarima = auto.arima(ts.x)
-#gives me perfect adjusted 
-
 
 forecast.arima = forecast.Arima(autoarima, h=120) #für 10 jahre #automatizing 10*period
 
@@ -68,7 +63,7 @@ plotForecastErrors(forecast.arima$residuals)
 #fits good
 
 #run diagnostics
-diagnostics( forecast10)
+diagnostics(forecast10)
 diagnostics(forecast.arima)
 
 #look at both zoomed in forecasts
