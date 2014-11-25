@@ -10,6 +10,8 @@ so x will be the model and x$residuals and x$fitted are the other options we nee
 diagnostics <- function (x)
   {
   normality = shapiro.test(x$residuals); #check for normal distributed values # 
+  if(inherits(normality, "error")) next
+  
   stat.res =  adf.test(x$residuals); #check both residuals and fitted of the model for stationarity
   stat.fit = adf.test(x$fitted);
   x$residualsvector = as.vector(x$residuals);
@@ -23,7 +25,6 @@ diagnostics <- function (x)
   return ( output )
 }
 
-diagnostics(smoothed)
 
 
 ####################
@@ -53,7 +54,7 @@ plotForecastErrors <- function(forecasterrors)
   points(myhist$mids, myhist$density, type="l", col="blue", lwd=2)
 }
 
-plotForecastErrors(forecasts2$residuals)
+
 ###########################
 
 
