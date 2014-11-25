@@ -1,7 +1,7 @@
 \documentclass[11pt, a4paper]{article} %or article has only section and below, book and report also have chapter: http://texblog.org/2007/07/09/documentclassbook-report-article-or-letter/
 \usepackage[utf8]{inputenc} % use utf8 encoding of symbols such as umlaute for maximal compatibility across platforms
 \usepackage{caption} % provides commands for handling caption sizes etc.
-%\usepackage[a4paper, left=25mm, right=20mm, top=25mm, bottom=20mm]{geometry} % to easily change margin widths: https://www.sharelatex.com/learn/Page_size_and_margins
+\usepackage[a4paper, left=25mm, right=20mm, top=25mm, bottom=20mm]{geometry} % to easily change margin widths: https://www.sharelatex.com/learn/Page_size_and_margins
 \usepackage[bottom]{footmisc} % I love footnotes! And they should be down at the bottom of the page!
 \usepackage{float}%
 \usepackage{graphicx} % when using figures and alike
@@ -28,22 +28,8 @@
 \frenchspacing %http://texwelt.de/wissen/fragen/1154/was-ist-french-spacing-was-macht-frenchspacing
 %------------------------------------------------------------------------------------------------------
 %------------------------------------------------------------------------------------------------------
-
-
 \begin{document}
 \SweaveOpts{concordance=TRUE}
-
-
-\title{Time Series Analysis - A Tutorial}
-\author{Rosskopf,E.; Cordes, M.; Lumiko, J.}
-% for more control, multiple affiliations, line breaks and alike, use the authblk package!!
-\date{\today} % !!use package isodate for more control of date formatting!!
-\maketitle
-\abstract{Tutorial for time series analysis in R... }
-
-\tableofcontents
-
-
 
 \section{Nile}
 \subsection{the Nile River Time Series}%------------------------------------------------------------------------------------------------------
@@ -212,6 +198,47 @@ plotForecastErrors(forecast_nile2$residuals)
 @
 \caption{Residuals and Errors}
 \end{figure}
+
+<<>>=
+nilelm = lm(Nile~time(Nile))
+summary(nilelm)
+acf(resid(nilelm))
+pacf(resid(nilelm))
+@
+
+
+<<>>=
+library(nlme)
+nilegls = gls(Nile ~ time(Nile),cor= corAR1(acf(resid(nilelm))$acf[2]))
+nilegls
+acf(nilegls$residuals, plot = F)
+summary(nilegls)
+confint(nilegls)
+plot(nilegls)
+plot(nilelm)
+
+@
+
+
+<<>>=
+Box.test(nilegls$residuals, type="Ljung-Box")
+@
+The NULL-Hypothesis can be rejected, the residuals are not independent. 
+
+We can check which model has the best AIC:
+<<>>=
+AIC(nilelm)
+AIC(nilegls)
+@
+The nilegls Model seems to be better.
+
+And we perform the Durbin Watson Test to check for autocorrelations.
+<<>>=
+library(car)
+dwt(as.vector(nilegls$residuals)) 
+@
+The Durbin Watson Test of the residuals shows that there is no autocorrelation.
+
 
 \subsubsection{Structural time series models}
 
