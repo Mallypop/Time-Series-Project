@@ -1,0 +1,27 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}
+\contentsline {section}{\numberline {2}Getting started}{2}{section.2}
+\contentsline {subsection}{\numberline {2.1}Packages}{2}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Functions needed lateron}{2}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}Dataset (CO2-Concentrations)}{3}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}Dataset Visualization}{3}{subsection.2.4}
+\contentsline {subsubsection}{\numberline {2.4.1}Histogram \& QQ-Plot}{4}{subsubsection.2.4.1}
+\contentsline {subsubsection}{\numberline {2.4.2}Plotting the fitted values}{5}{subsubsection.2.4.2}
+\contentsline {subsection}{\numberline {2.5}Dataset Transformation}{6}{subsection.2.5}
+\contentsline {subsection}{\numberline {2.6}Time-Series Visualization}{6}{subsection.2.6}
+\contentsline {subsubsection}{\numberline {2.6.1}Time-Series Plot}{7}{subsubsection.2.6.1}
+\contentsline {subsubsection}{\numberline {2.6.2}ACF, PACF, SPECTRUM}{7}{subsubsection.2.6.2}
+\contentsline {section}{\numberline {3}Decomposition of Time Series}{10}{section.3}
+\contentsline {subsection}{\numberline {3.1}Decomposing Seasonal Data}{10}{subsection.3.1}
+\contentsline {section}{\numberline {4}Modelling the time series}{12}{section.4}
+\contentsline {subsection}{\numberline {4.1}Analysis of Seasonal Data with GLS}{12}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Modelling time series with ARIMA }{27}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Modelling time series with gam}{30}{subsection.4.3}
+\contentsline {section}{\numberline {5}Forecasts}{32}{section.5}
+\contentsline {subsection}{\numberline {5.1}Forecast with predict()}{32}{subsection.5.1}
+\contentsline {subsection}{\numberline {5.2}Holtwinters forecast function}{33}{subsection.5.2}
+\contentsline {subsection}{\numberline {5.3}ARIMA forecast function}{35}{subsection.5.3}
+\contentsline {subsection}{\numberline {5.4}Comparison of HW and ARIMA}{35}{subsection.5.4}
+\contentsline {subsection}{\numberline {5.5}Seasonal Decomposition of Time Series by Loess}{38}{subsection.5.5}
+\contentsline {section}{\numberline {6}compabitily with Linux and Windows when working together on a sweave document.}{39}{section.6}
+\contentsline {section}{\numberline {7}Links and Further Reading}{39}{section.7}
+\contentsline {section}{\numberline {8}Acknowledgements}{40}{section.8}
