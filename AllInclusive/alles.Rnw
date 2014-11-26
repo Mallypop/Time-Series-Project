@@ -65,6 +65,7 @@ library(forecast)
 library(AICcmodavg)
 library(TTR)
 library(mgcv)
+library(dlm)
 @
 \subsection{Functions needed lateron}
 function writing to organize our script:\\
@@ -117,8 +118,9 @@ points(myhist$mids, myhist$density, type="l", col="blue", lwd=2)
 The first dataset we will work with consists of monthly CO2-concentrations [ppm] in the atmosphere, measured over time at the famous Mauna Loa Station on Hawaii.\\
 To download this dataset, just use the code provided below.
 <<results=hide>>=
+setwd("/home/lumi/Arbeitsfläche/Arbeitsflaeche/studium/Best Practice R/Time-Series-Project/")
 url<-"ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_mm_mlo.txt"
-dest<-"C:/Users/Mallypop/Desktop/AllInclusive/co2_mm_mlo.txt"
+dest<-"/home/lumi/Arbeitsfläche/Arbeitsflaeche/studium/Best Practice R/Time-Series-Project/Dataset/myts.txt"
 download.file(url, dest )
 co2month=read.table(dest, skip=72)
 co2month
@@ -300,15 +302,9 @@ The standard errors are highly underestimated, thus in the summary the p-value i
 A nice model to try is GLS, which will allow for correlation of standard errors and unequel variances.
 In the GLS we have different options to choose, though our data is not spatially correlated we are not discussing spatial autocorrelation here ( further reading on:...)
 Our first try on gls will be simple:
-<<results=tex,eval=FALSE>>=
+<<results=tex>>=
 data.glsAR = gls(co2 ~ year,cor= corAR1(acf(resid(datalm))$acf[2]))
-save(data.glsAR, file="data.glsAR.RData")
 @
-
-<<>>=
-load("data.glsAR.RData")
-@
-
 The difference will be made in the correlation structure. There are generally ( for temporal corr. interesting) five options you have:
 \begin{enumerate}
 \item corAR1: in ACF exponential decreasing values of correlation with time distance\\
@@ -324,12 +320,10 @@ acf(data.glsAR$residuals)
 We have still a lot of problems concerning the autocorrelation and the seasonality. One option is to allow the AR to use more parameters and/or to include a moving average or error variance to the model. This can be handled via the corARMA. We tried 2 versions, one with 1 lag and 1 moving average, the other with 2 lags and 2 moving averages.
 The 0.2 are starting values for Phi, which are in the modelling process optimized.
 The next models are thus:
-<<results=tex,eval=FALSE>>=
+<<results=tex, eval=FALSE>>=
 data.glsARMA1 = gls ( co2 ~ year, cor = corARMA (c(0.2,0.2),p=1, q=1 ))
 data.glsARMA2 = gls (co2 ~year, cor=corARMA(c(0.2,0.2,0.2, 0.2), p=2, q=2))
 xtable(anova(data.glsAR, data.glsARMA1, data.glsARMA2))
-save(data.glsARMA1, file="data.glsARMA1.RData")
-save(data.glsARMA2, file="data.glsARMA2.RData")
 @
 
 <<>>=
@@ -351,8 +345,7 @@ plot(data.glsARMA2)
 @
 \caption{Residuals fitted vs. observed}
 \label{residual}
-\end{figure}\\
-
+\end{figure}
 \noindent function writing: if anova$AIC lowest, choose this as bestmodel
 But still we have seasonal problems here. We should therefore include a seasonal term.
 Try to fit for seasonal component and autocorrelation with best corstruct:
@@ -773,22 +766,21 @@ for (i in 1:10) # 10 simulated "true" levels
 \caption{dlm Model}
 \end{figure}
 
-\subsection
-
+<<>>=
 library(mgcv)
 niletime = time(Nile)
-gamnile = gam(as.numeric(Nile) ~ s(niletime),cor=corARMA(p=2, q=0)) 
-plot.gam(gamnile,residuals = T, se=T, main="GAM-Model")
+gamnile = gam(as.numeric(Nile) ~ s(niletime),cor=corARMA(p=2, q=0))
+plot.gam(gamnile,residuals = T, se=T, main="GAM-Model", shade = T)
+@
 
 
 
 
 \section{compabitily with Linux and Windows when working together on a sweave document.}
-If you have Linux and have problems working on a same sweave document with Windows users because the line breaks and other text configurations are different, try to type:
-<<>>=
-(on the terminal)
+\noindent If you have Linux and have problems working on a same sweave document with Windows users because the line breaks and other text configurations are different, try to type on the terminal\\
 unix2dos yourfilename.Rnw
-@
+
+
 
 
 \section{Links and Further Reading}%-----------------------------------------------------------------------------------------------
