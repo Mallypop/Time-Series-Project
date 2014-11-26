@@ -26,13 +26,21 @@
 \renewcommand{\floatpagefraction}{0.70}
 \frenchspacing %http://texwelt.de/wissen/fragen/1154/was-ist-french-spacing-was-macht-frenchspacing
 %------------------------------------------------------------------------------------------------------
-%------------------------------------------------------------------------------------------------------
-\begin{document}
+
+\usepackage{listings}
+
+<<echo=FALSE>>=
+  options(width=60)
+
+@
+
 \SweaveOpts{concordance=TRUE}
 \title{Time Series Analysis - A Tutorial}
 \author{Rosskopf,E.; Cordes, M.; Lumiko, J.}
 % for more control, multiple affiliations, line breaks and alike, use the authblk package!!
 \date{\today} % !!use package isodate for more control of date formatting!!
+\begin{document}
+
 \maketitle
 \abstract{Tutorial for time series analysis in R... }
 \tableofcontents
@@ -131,7 +139,7 @@ To download this dataset, just use the code provided below.
 
 <<results=hide>>=
 url<-"ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_mm_mlo.txt"
-dest<-"C:/Users/schnuri/Desktop/Neuer Ordner/Dataset/run.txt"
+dest<-"//csrv05/public$/Elenamarlene/BestpracticeR/timeseries/run.txt"
 download.file(url, dest ) 
 co2month=read.table(dest, skip=72)
 co2month

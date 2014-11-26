@@ -27,6 +27,9 @@
 \frenchspacing %http://texwelt.de/wissen/fragen/1154/was-ist-french-spacing-was-macht-frenchspacing
 %------------------------------------------------------------------------------------------------------
 %------------------------------------------------------------------------------------------------------
+
+
+
 \usepackage{Sweave}
 \begin{document}
 \input{alles-concordance}
@@ -38,10 +41,12 @@
 \abstract{Tutorial for time series analysis in R... }
 \tableofcontents
 \pagebreak
-\section{Introduction}%------------------------------------------------------------------------------------
-This tutorial assumes that the reader has some basic knowledge of time series analysis, and the principal focus of the tutorial is not to explain time series analysis, but rather to explain how to carry out these analyses using R.
+
+
+\section{Introduction}
+This tutorial assumes that the reader has some basic knowledge of time series analysis, and the principal focus of the tutorial is not to explain time series analysis, but rather to explain how to carry out these analyses using R.\\
 \noindent
-If you are new to time series analysis, and want to learn more about any of the concepts presented here, We would highly recommend the Open University book “Time series” (product code M249/02), available from from the Open University Shop.
+If you are new to time series analysis, and want to learn more about any of the concepts presented here, We would highly recommend the Open University book “Time series” (product code M249/02), available from from the Open University Shop.\\
 %\begin{itemize}
 %\item Definition time series\\
 %\item examples in economy, nature, humans,.... \\
@@ -74,50 +79,56 @@ function writing to organize our script:\\
 \noindent first we can write a diagnostics function with all the tests we need to perform to check if our model is adequate enough to stop the model adaptation.\\
 we need to be careful if we want to check for residuals or the whole model.
 so x will be the model and x$residuals and x$fitted are the other options we need.\\
+
+
 \begin{Schunk}
 \begin{Sinput}
 > diagnostics <- function (x)
-+ {
-+ normality = shapiro.test(x$residuals); #check for normal distributed values #
-+ stat.res = adf.test(x$residuals); #check both residuals and fitted of the model for stationarity
-+ stat.fit = adf.test(x$fitted);
-+ x$residualsvector = as.vector(x$residuals);
-+ autocorr= dwt(x$residualsvector) ; #check for autocorrelation
-+ indep= Box.test(x$residuals, type="Ljung-Box") #check for independence
-+ #lag for season is df: m-1 ( 12-1)
-+ #write if seasonal = TRUE lag=12-1, else write nothing
-+ #there is high evidence that there are non-zero autocorr.
-+ output = list(normality, stat.res, stat.fit, autocorr, indep)
-+ names (output) = c("norm. distrb. of residuals", "stationarity of residuals", "stationarity of fitted values", "autocorrelation of residuals", "independence of residuals")
-+ return ( output )
-+ }
+ {
+ normality = shapiro.test(x$residuals); #check for normal distributed values #
+ stat.res = adf.test(x$residuals); #check both residuals and fitted of the model for stationarity
+ stat.fit = adf.test(x$fitted);
+ x$residualsvector = as.vector(x$residuals);
+ autocorr= dwt(x$residualsvector) ; #check for autocorrelation
+ indep= Box.test(x$residuals, type="Ljung-Box") #check for independence
+ #lag for season is df: m-1 ( 12-1)
+ #write if seasonal = TRUE lag=12-1, else write nothing
+ #there is high evidence that there are non-zero autocorr.
+ output = list(normality, stat.res, stat.fit, autocorr, indep)
+ names (output) = c("norm. distrb. of residuals", "stationarity of residuals",
+                    "stationarity of fitted values", "autocorrelation of residuals",
+                    "independence of residuals")
+ return ( output )
+ }
 \end{Sinput}
 \end{Schunk}
 \noindent Lateron for the forecast plotting, we need the histogram with the normal distribution to see wether the errors of the forecast model are well distributed:
+
+
 \begin{Schunk}
 \begin{Sinput}
 > plotForecastErrors <- function(forecasterrors)
-+ {
-+ # make a histogram of the forecast errors:
-+ mybinsize <- IQR(forecasterrors)/4
-+ mysd <- sd(forecasterrors)
-+ mymin <- min(forecasterrors) - mysd*5
-+ mymax <- max(forecasterrors) + mysd*3
-+ # generate normally distributed data with mean 0 and standard deviation mysd
-+ mynorm <- rnorm(10000, mean=0, sd=mysd)
-+ mymin2 <- min(mynorm)
-+ mymax2 <- max(mynorm)
-+ if (mymin2 < mymin) { mymin <- mymin2 }
-+ if (mymax2 > mymax) { mymax <- mymax2 }
-+ # make a red histogram of the forecast errors, with the normally distributed data overlaid:
-+ mybins <- seq(mymin, mymax, mybinsize)
-+ hist(forecasterrors, col="red", freq=FALSE, breaks=mybins)
-+ # freq=FALSE ensures density
-+ # generate normally distributed data with mean 0 and standard deviation mysd
-+ myhist <- hist(mynorm, plot=FALSE, breaks=mybins)
-+ # plot the normal curve as a blue line on top of the histogram of forecast errors:
-+ points(myhist$mids, myhist$density, type="l", col="blue", lwd=2)
-+ }
+ {
+ # make a histogram of the forecast errors:
+ mybinsize <- IQR(forecasterrors)/4
+ mysd <- sd(forecasterrors)
+ mymin <- min(forecasterrors) - mysd*5
+ mymax <- max(forecasterrors) + mysd*3
+ # generate normally distributed data with mean 0 and standard deviation mysd
+ mynorm <- rnorm(10000, mean=0, sd=mysd)
+ mymin2 <- min(mynorm)
+ mymax2 <- max(mynorm)
+ if (mymin2 < mymin) { mymin <- mymin2 }
+ if (mymax2 > mymax) { mymax <- mymax2 }
+ # make a red histogram of the forecast errors, with the normally distributed data overlaid:
+ mybins <- seq(mymin, mymax, mybinsize)
+ hist(forecasterrors, col="red", freq=FALSE, breaks=mybins)
+ # freq=FALSE ensures density
+ # generate normally distributed data with mean 0 and standard deviation mysd
+ myhist <- hist(mynorm, plot=FALSE, breaks=mybins)
+ # plot the normal curve as a blue line on top of the histogram of forecast errors:
+ points(myhist$mids, myhist$density, type="l", col="blue", lwd=2)
+ }
 \end{Sinput}
 \end{Schunk}
 \subsection{Dataset (CO2-Concentrations)}%------------------------------------------------------------------------------------
@@ -126,7 +137,7 @@ To download this dataset, just use the code provided below.
 \begin{Schunk}
 \begin{Sinput}
 > url<-"ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_mm_mlo.txt"
-> dest<-"C:/Users/Mallypop/Desktop/AllInclusive/co2_mm_mlo.txt"
+> dest<-"//csrv05/public$/Elenamarlene/BestpracticeR/timeseries/run.txt"
 > download.file(url, dest )
 > co2month=read.table(dest, skip=72)
 > co2month
@@ -136,6 +147,7 @@ To download this dataset, just use the code provided below.
 \subsection{Dataset Visualization}%-----------------------------------------------------------------------------------
 It can be really useful to visualize your dataset before you transform it into a timeseries (ts) in order to detect potential errors.
 \subsubsection{Histogram \& QQ-Plot}
+
 \begin{Schunk}
 \begin{Sinput}
 > data = co2month[,c(3,5)]
@@ -143,8 +155,8 @@ It can be really useful to visualize your dataset before you transform it into a
 > attach(data)
 > x = co2
 > op = par(mfrow = c(1,2),
-+ mar = c(5,4,1,2)+.1,
-+ oma = c(0,0,2,0))
+ mar = c(5,4,1,2)+.1,
+ oma = c(0,0,2,0))
 > hist(co2, freq=F, col = "cornsilk",xlab = "", main = "")
 > qqnorm(x, main = ""); qqline(x,col = 'red')
 > par(op)
@@ -174,7 +186,7 @@ It can be really useful to visualize your dataset before you transform it into a
 > lines(MyData$year, FSUP,lty=1, col="red", lwd=3)
 > lines(MyData$year, FSLOW,lty=1, col="red", lwd=3)
 > legend("topleft",c("simple linear regression y~x", "monthly mean data"),
-+ pch=c(20,20), col=c("red", "cornflowerblue"))
+ pch=c(20,20), col=c("red", "cornflowerblue"))
 \end{Sinput}
 \end{Schunk}
 \includegraphics{alles-fig1datalm}
@@ -184,8 +196,8 @@ Look at standard errors, highly underestimated, standard errors are higher in tr
 \begin{Sinput}
 > xtable(summary(datalm))
 \end{Sinput}
-% latex table generated in R 3.1.2 by xtable 1.7-4 package
-% Wed Nov 26 11:00:02 2014
+% latex table generated in R 3.1.1 by xtable 1.7-4 package
+% Wed Nov 26 13:00:15 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrr}
@@ -207,8 +219,8 @@ It is essential to transform your dataset into a timeseries (ts) if you seek for
 \begin{Sinput}
 > xtable(head(data), caption="Original CO2-Data")
 \end{Sinput}
-% latex table generated in R 3.1.2 by xtable 1.7-4 package
-% Wed Nov 26 11:00:02 2014
+% latex table generated in R 3.1.1 by xtable 1.7-4 package
+% Wed Nov 26 13:00:15 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrr}
@@ -250,7 +262,7 @@ It is important to get a quick overview of your data. Some simple plots for visu
 > k <- 5
 > lines(year,filter(co2, rep(1/k,k) ),col = 'red', type="l", lwd = 3)
 > legend("topleft",c("simple moving average", "monthly mean data"),
-+ pch=c(20,20), col=c("red", "cornflowerblue"))
+ pch=c(20,20), col=c("red", "cornflowerblue"))
 \end{Sinput}
 \end{Schunk}
 \includegraphics{alles-fig1visualize}
@@ -268,27 +280,27 @@ Another nice procedure is to run the \textbf{autocorrelation function} with its 
 \begin{Schunk}
 \begin{Sinput}
 > op <- par(mfrow = c(3,1),
-+ mar = c(2,4,1,2)+.1,
-+ oma = c(0,0,2,0))
+ mar = c(2,4,1,2)+.1,
+ oma = c(0,0,2,0))
 > acf(x, xlab = "")
 > pacf(x, xlab = "")
 > spectrum(x, xlab = "", main = "")
 > par(op)
 > mtext("CO2 Concentration (ppm) correlogram",
-+ line = 2.5,
-+ font = 2,
-+ cex = 0.8)
+ line = 2.5,
+ font = 2,
+ cex = 0.8)
 > op <- par(mfrow = c(3,1),
-+ mar = c(2,4,1,2)+.1,
-+ oma = c(0,0,2,0))
+ mar = c(2,4,1,2)+.1,
+ oma = c(0,0,2,0))
 > acf(resid(datalm), xlab = "")
 > pacf(resid(datalm),xlab = "")
 > spectrum(resid(datalm), xlab = "", main = "")
 > par(op)
 > mtext("Model residual correlogram",
-+ line = 2.5,
-+ font = 2,
-+ cex = 1.2)
+ line = 2.5,
+ font = 2,
+ cex = 1.2)
 \end{Sinput}
 \end{Schunk}
 \includegraphics{alles-correlogram}
@@ -358,7 +370,12 @@ It seems that our seasonal component is positive until the summer months, were i
 \label{decomposition2}
 \end{figure}
 \noindent It seems that our data can probably be described using an additive model, since the random fluctuations in the data are roughly constant in size over time (constant seasonal component). In some cases it might be handy to have the model without the seasonal fluctuations to depict change in the trend and local extremes easier (see fig. ~\ref{decomposition2}).
-\section{Analysis of Seasonal Data}
+
+\section{Modelling the time series}
+The best model for a time series needs to have residuals as white noise terms.
+There are different ways to approach this task.
+
+\subsection{Analysis of Seasonal Data with GLS}
 After looking at the simple linear regression datalm, we were facing some serious problems with our model.
 To be sure about non-stationarity of our time series, wen can run the adf.test, giving us the result that our data is non-stationary and we need to fix it:
 \begin{Schunk}
@@ -366,7 +383,8 @@ To be sure about non-stationarity of our time series, wen can run the adf.test, 
 	Augmented Dickey-Fuller Test
 
 data:  yourts
-Dickey-Fuller = -1.0663, Lag order = 8, p-value = 0.928
+Dickey-Fuller = -1.0663, Lag order = 8, p-value =
+0.928
 alternative hypothesis: stationary
 \end{Soutput}
 \end{Schunk}
@@ -375,12 +393,6 @@ The standard errors are highly underestimated, thus in the summary the p-value i
 A nice model to try is GLS, which will allow for correlation of standard errors and unequel variances.
 In the GLS we have different options to choose, though our data is not spatially correlated we are not discussing spatial autocorrelation here ( further reading on:...)
 Our first try on gls will be simple:
-\begin{Schunk}
-\begin{Sinput}
-> data.glsAR = gls(co2 ~ year,cor= corAR1(acf(resid(datalm))$acf[2]))
-> save(data.glsAR, file="data.glsAR.RData")
-\end{Sinput}
-\end{Schunk}
 
 \begin{Schunk}
 \begin{Sinput}
@@ -400,6 +412,7 @@ Our first gls model accounts for the AR1, which is clearly visible in the PACF.
 \begin{Schunk}
 \begin{Sinput}
 > acf(data.glsAR$residuals)
+> pacf(data.glsAR$residuals)
 \end{Sinput}
 \end{Schunk}
 We have still a lot of problems concerning the autocorrelation and the seasonality. One option is to allow the AR to use more parameters and/or to include a moving average or error variance to the model. This can be handled via the corARMA. We tried 2 versions, one with 1 lag and 1 moving average, the other with 2 lags and 2 moving averages.
@@ -422,11 +435,44 @@ The next models are thus:
 \end{Sinput}
 \end{Schunk}
 
-% To compare all the models we use anova and the best model is so far the data.glsARMA2 with the lowest AIC and significantly better than the ARMA1, which is itself significantly better than the data.glsAR.
-% <<results=tex, echo=FALSE>>=
-% #run diagnostics
-print(diagnostics(data.glsARMA2))
-\begin{figure}[H]
+To compare all the models we use anova and the best model is so far the data.glsARMA2 with the lowest AIC and significantly better than the ARMA1, which is itself significantly better than the data.glsAR.
+$`norm. distrb. of residuals`
+
+	Shapiro-Wilk normality test
+
+data:  x$residuals
+W = 0.9785, p-value = 1.861e-08
+
+
+$`stationarity of residuals`
+
+	Augmented Dickey-Fuller Test
+
+data:  x$residuals
+Dickey-Fuller = -1.0665, Lag order = 8, p-value =
+0.928
+alternative hypothesis: stationary
+
+
+$`stationarity of fitted values`
+
+	Augmented Dickey-Fuller Test
+
+data:  x$fitted
+Dickey-Fuller = -89939817370, Lag order = 8, p-value
+= 0.01
+alternative hypothesis: stationary
+
+
+$`autocorrelation of residuals`
+[1] 0.1111791
+
+$`independence of residuals`
+
+	Box-Ljung test
+
+data:  x$residuals
+X-squared = 603.7779, df = 1, p-value < 2.2e-16\begin{figure}[H]
 \begin{Schunk}
 \begin{Sinput}
 > par(mfrow=c(1,2))
@@ -447,7 +493,7 @@ Try to fit for seasonal component and autocorrelation with best corstruct:
 \begin{Sinput}
 > seas = cycle(yourts)
 > dataseasongls = gls(co2 ~ year + factor(seas), cor=corARMA( c(0.2,0.2,0.2, 0.2),
-+                 p=2, q=2)) #use bestmodel corstruct
+                 p=2, q=2)) #use bestmodel corstruct
 > save(dataseasongls, file="dataseasongls.RData")
 \end{Sinput}
 \end{Schunk}
@@ -458,9 +504,12 @@ Try to fit for seasonal component and autocorrelation with best corstruct:
 \end{Sinput}
 \end{Schunk}
 
-\section{Modelling the time series}
-The best model for a time series needs to have residuals as white noise terms.
-There are different ways to approach this task.
+\subsection{Modelling time series with ARIMA }
+First good thing: ARIMA does not care about stationarity. If your dataset is non-stationary, it will make it stationary as good as possible. 
+
+\subsection{Modelling time series with gam}
+
+
 \section{Forecasts}%----------------------------------------------------------------------------------------------------
 We have three different options to make ( up to now)
 \begin{enumerate}
@@ -470,30 +519,98 @@ We have three different options to make ( up to now)
 \end{enumerate}
 \subsection{Holt-Winters Exponential Smoothing}%-----------------------------------------------------------------------------------------------
 If we have a time series that can be described using an additive model,we can short-time forecast using exponential smoothing.\\
-Preconditions:forecast errors are uncorrelated and are normally distributed with mean zero and constant variance.
-\begin{Schunk}
-\begin{Sinput}
-> hw<-HoltWinters(yourts)
-> #the alpha value tells us the weight of the previous values for the forecasting
-> #values of alpha that are close to 0 mean that little weight is placed on the most recent observations when making forecasts of future values
-> #gamma is for the seasonality
-> plot(hw)
-\end{Sinput}
-\end{Schunk}
+Preconditions: forecast errors are uncorrelated and are normally distributed with mean zero and constant variance.
+
+\subsection{Forecast with predict()}
+
+newtime= ts(start=c(2014, 10),end=c(2024,12),deltat=1/12)
+pred = predict(smoothed.gls, newdata=newtime, se=T) #poission: type ="LINK", binomial: type="RESPONSE"
+
+TIME <- as.numeric(time)
+time.df <- data.frame(TIME=TIME, COS, SIN)
+colnames(time.df)[-1] <- paste0("V", 1:12)
+smoothed <- gls(as.numeric(ts.x) ~ TIME + I(TIME^2) + V1 + V2 + V3 + V4 + V5 +V6 +V7+V8 +V9 +V10 +V11 +V12, corr=corAR1(acf(dataseason.gls$residuals)$acf[2]), data=time.df)
+new.df <- cbind.data.frame(TIME=as.numeric(time(newtime)), COS=COS[1:123,], SIN=SIN[1:123,])
+colnames(new.df)[-1] <- paste0("V", 1:12)
+pred = predictSE(smoothed, newdata=new.df, se.fit=T)
+plot(ts.x, type="n",las=1, xlim=c(1960, 2025), ylim=c(300, 450), xlab="Year", ylab="CO2 conc. (ppm)", main="CO2 concentration in the atmosphere")
+grid (NULL,NULL, lty = 6, col = "cornsilk2") 
+points(ts.x ,type="l" )
+par(mfrow=c(1,1))
+lines(as.numeric(time(newtime)), pred$fit, col="red")
+F=(pred$fit)
+FSUP=(pred$fit+1.96*pred$se.fit) # make upper conf. int. 
+FSLOW=(pred$fit-1.96*pred$se.fit) # make lower conf. int. 
+lines(new.df$TIME, FSUP,lty=1, col="grey", lwd=3)
+lines(new.df$TIME, FSLOW,lty=1, col="grey", lwd=3)
+lines(new.df$TIME, F, lty=1, col="red", lwd=1)
+legend("topleft",c("forecast for 10 years", "monthly mean data", "CI"), 
+       pch=c(20,20), col=c("red", "black", "grey"))
+
+\subsection{Holtwinters forecast function}
+Forecasting: from past values (x1,x2,x3,...,xn) want to predict future values x(n+k), 
+holtwinters explanation: 
+if alpha is near 1, little smoothing, at is approx. xt 
+ alpha is zero, highly smoothed estimates
+ a = 0.2 compromise figure, change in mean between t-1 and t likel smaller than variance
+
+not specify aphla, beta, gamma to include errors, trend and seasonal component in the forecast
+
+forecast <- HoltWinters(ts.x)
+forecast10 <- forecast.HoltWinters(forecast,h=120)
+par(mfrow=c(1,1))
+plot.forecast(forecast10)
+
+check for the autocorrelation of the future values
+
+acf(forecast10$residuals)#how is the lag.max defined? 
+pacf(forecast10$residuals)
+diagnostics(forecast10)
+
+\subsection{ARIMA forecast function}
+
+forecast.arima = forecast.Arima(autoarima, h=120) #f<fc>r 10 jahre #automatizing 10*period
+
+
+\subsection{Comparison of HW and ARIMA}
+par(mfrow=c(2,1))
+plot.forecast(forecast.arima)
+plot.forecast(forecast10)
+
+#check for error distirbution 
+par(mfrow=c(1,2))
+plotForecastErrors(forecast10$residuals)
+plotForecastErrors(forecast.arima$residuals)
+#fits good
+
+#run diagnostics
+diagnostics(forecast10)
+diagnostics(forecast.arima)
+
+#look at both zoomed in forecasts
+par(mfrow=c(1,2))
+
+plot(forecast.arima, xlim=c(2010,2025), ylim=c(385,430))
+plot.forecast(forecast10 ,xlim=c(2010,2025), ylim=c(385,430))
+
+
+hw<-HoltWinters(yourts)
+#the alpha value tells us the weight of the previous values for the forecasting
+#values of alpha that are close to 0 mean that little weight is placed on the most recent observations when making forecasts of future values
+#gamma is for the seasonality
+plot(hw)
+
 \noindent Holtwinters just makes forecasts for the time period covered by the original data.If we want to forecast for the future, we need the packeged "forecast".\\
 \begin{figure}[H]
 \centering
-\begin{Schunk}
-\begin{Sinput}
-> hw1<- forecast.HoltWinters(hw, h=12)
-> #for the next year
-> plot.forecast(hw1, main="Prediction for the next year",shadecols = "oldstyle")
-> #for next 10 years
-> hw10<- forecast.HoltWinters(hw, h=120)
-> plot.forecast(hw10, main="Prediction for the next 10 years", shadecols = "oldstyle")
-\end{Sinput}
-\end{Schunk}
-\includegraphics{alles-027}
+#<<fig=TRUE>>=
+hw1<- forecast.HoltWinters(hw, h=12)
+#for the next year
+plot.forecast(hw1, main="Prediction for the next year",shadecols = "oldstyle")
+#for next 10 years
+hw10<- forecast.HoltWinters(hw, h=120)
+plot.forecast(hw10, main="Prediction for the next 10 years", shadecols = "oldstyle")
+#@
 \caption{Forecasting using Holt Winters exponential smoothing}
 \end{figure}
 \noindent Here the forecasts for 1913-1920 are plotted as a blue line, the 80% prediction interval as an orange shaded area, and the 95% prediction interval as a yellow shaded area.
@@ -501,59 +618,22 @@ Preconditions:forecast errors are uncorrelated and are normally distributed with
 \noindent To calculate a correlogram of the in-sample forecast errors for the CO2 Time series data for lags 1-20, we type:
 \begin{figure}[H]
 \centering
-\begin{Schunk}
-\begin{Sinput}
-> acf(hw10$residuals, lag.max=20)
-\end{Sinput}
-\end{Schunk}
-\includegraphics{alles-028}
+#<<fig=TRUE>>=
+#acf(hw10$residuals, lag.max=20)
+#@
 \caption{Correlogram of the residuals.}
 \end{figure}
-\begin{Schunk}
-\begin{Sinput}
-> Box.test(hw10$residuals, lag=20, type="Ljung-Box")
-\end{Sinput}
-\begin{Soutput}
-	Box-Ljung test
-
-data:  hw10$residuals
-X-squared = 37.5445, df = 20, p-value = 0.01006
-\end{Soutput}
-\end{Schunk}
+#<<>>=
+#Box.test(hw10$residuals, lag=20, type="Ljung-Box")
+#@
 There is little evidence of non-zero autocorrelations at lags 1-20.
-\begin{Schunk}
-\begin{Sinput}
-> plotForecastErrors <- function(forecasterrors)
-+ {
-+ # make a histogram of the forecast errors:
-+ mybinsize <- IQR(forecasterrors)/4
-+ mysd <- sd(forecasterrors)
-+ mymin <- min(forecasterrors) - mysd*5
-+ mymax <- max(forecasterrors) + mysd*3
-+ # generate normally distributed data with mean 0 and standard deviation mysd
-+ mynorm <- rnorm(10000, mean=0, sd=mysd)
-+ mymin2 <- min(mynorm)
-+ mymax2 <- max(mynorm)
-+ if (mymin2 < mymin) { mymin <- mymin2 }
-+ if (mymax2 > mymax) { mymax <- mymax2 }
-+ # make a red histogram of the forecast errors, with the normally distributed data overlaid:
-+ mybins <- seq(mymin, mymax, mybinsize)
-+ hist(forecasterrors, col="red", freq=FALSE, breaks=mybins)
-+ # freq=FALSE ensures the area under the histogram = 1
-+ # generate normally distributed data with mean 0 and standard deviation mysd
-+ myhist <- hist(mynorm, plot=FALSE, breaks=mybins)
-+ # plot the normal curve as a blue line on top of the histogram of forecast errors:
-+ points(myhist$mids, myhist$density, type="l", col="blue", lwd=2)
-+ }
-\end{Sinput}
-\end{Schunk}
+
+
 \begin{figure}[H]
 \centering
-\begin{Schunk}
-\begin{Sinput}
-> plotForecastErrors(hw10$residuals)
-\end{Sinput}
-\end{Schunk}
+#<<>>=
+#plotForecastErrors(hw10$residuals)
+#@
 \caption{Histogram of the errors}
 \end{figure}
 \noindent The histogram of the time series shows that the forecast errors are roughly normally distributed and the mean seems to be close to zero.
@@ -579,36 +659,24 @@ Coefficients:
 \includegraphics{alles-032}
 \caption{Forecasting using Loess}
 \end{figure}
-\subsection{ARIMA Models}%-----------------------------------------------------------------------------------------------
-For the CO2 time series:
-\begin{Schunk}
-\begin{Sinput}
-> au=auto.arima(yourts, ic = "bic")
-> arima1=arima(yourts, order = c(au$arma[1],au$arma[6],au$arma[2]))
-> fore1=forecast.Arima(arima1,h=10)
-> plot.forecast(fore1)
-\end{Sinput}
-\end{Schunk}
-\includegraphics{alles-033}
 
-\subsection{Selecting a Candidate ARIMA Model}%-----------------------------------------------------------------------------------------------
+
+
+
 TEXT
 \subsection{Forecasting Using an ARIMA Model}%-----------------------------------------------------------------------------------------------
 compare both functions of forecasting:
 \begin{figure}[H]
 \centering
-\begin{Schunk}
-\begin{Sinput}
-> par(mfrow=c(1,2))
-> plot(forecast.arima, xlim=c(2010,2025), ylim=c(385,430))
-> plot.forecast(forecasts2 ,xlim=c(2010,2025), ylim=c(385,430))
-\end{Sinput}
-\end{Schunk}
+#<<fig=TRUE, eval=TRUE>>=
+#par(mfrow=c(1,2))
+#plot(forecast.arima, xlim=c(2010,2025), ylim=c(385,430))
+#plot.forecast(forecasts2 ,xlim=c(2010,2025), ylim=c(385,430))
 \caption{Model Comparisons}
 \end{figure}
 
 \section{Nile}
-\subsection{the Nile River Time Series}%------------------------------------------------------------------------------------------------------
+\subsection{the Nile River Time Series} 
 
 \noindent Our example 2 contains the Measurements of the annual flow of the river Nile [m3/s] at Ashwan from 1871 to 1970. The Nile river data are included in any standard distribution of R as a time series object (i.e., a vector containing the data together with information about start/end time and sampling frequency); a detailed description of the data is given in the help file, ?Nile. \\
 First we visualize our data typing:
@@ -626,7 +694,7 @@ First we visualize our data typing:
 > plot(Nile, main="Annual flow of the Nile", ylab="Flow [m3/s]", xlab="years")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{alles-035}
+\includegraphics{alles-033}
 \caption{Annual Flow of the Nile}
 \end{figure}
 
@@ -643,7 +711,7 @@ To estimate the trend component of a non-seasonal time series that can be descri
 > 
 \end{Sinput}
 \end{Schunk}
-\includegraphics{alles-036}
+\includegraphics{alles-034}
 \caption{Trend of the Annual Flow of the Nile}
 \end{figure}
 
@@ -661,7 +729,7 @@ To estimate the trend component of a non-seasonal time series that can be descri
 > par(mfrow = c(1, 1))
 \end{Sinput}
 \end{Schunk}
-\includegraphics{alles-037}
+\includegraphics{alles-035}
 \caption{Autocorrelations and Partial autocorrelations.}
 \end{figure}
 
@@ -705,7 +773,7 @@ AIC=1283.96   AICc=1284.38   BIC=1294.38
 > 
 \end{Sinput}
 \end{Schunk}
-\includegraphics{alles-038}
+\includegraphics{alles-036}
 \caption{Cumulative Peridiogram of the residuals}
 \end{figure}
 
@@ -723,7 +791,7 @@ AIC=1283.96   AICc=1284.38   BIC=1294.38
 > 
 \end{Sinput}
 \end{Schunk}
-\includegraphics{alles-039}
+\includegraphics{alles-037}
 \caption{Holt Winters}
 \end{figure}
 
@@ -736,7 +804,7 @@ AIC=1283.96   AICc=1284.38   BIC=1294.38
 > 
 \end{Sinput}
 \end{Schunk}
-\includegraphics{alles-040}
+\includegraphics{alles-038}
 \caption{Holt Winter Forecasting}
 \end{figure}
 
@@ -773,7 +841,7 @@ X-squared = 15.8772, df = 20, p-value = 0.7242
 > plotForecastErrors(forecast_nile$residuals)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{alles-043}
+\includegraphics{alles-041}
 \caption{Forecast Errors}
 \end{figure}
 
@@ -792,7 +860,7 @@ X-squared = 15.8772, df = 20, p-value = 0.7242
 > 
 \end{Sinput}
 \end{Schunk}
-\includegraphics{alles-044}
+\includegraphics{alles-042}
 \caption{Arima forecasting}
 \end{figure}
 
@@ -811,7 +879,7 @@ data:  forecast_nile2$residuals
 X-squared = 12.1156, df = 20, p-value = 0.912
 \end{Soutput}
 \end{Schunk}
-\includegraphics{alles-045}
+\includegraphics{alles-043}
 \caption{acf of the residuals}
 \end{figure}
 
@@ -824,7 +892,7 @@ X-squared = 12.1156, df = 20, p-value = 0.912
 > plotForecastErrors(forecast_nile2$residuals)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{alles-046}
+\includegraphics{alles-044}
 \caption{Residuals and Errors}
 \end{figure}
 
@@ -846,7 +914,8 @@ Coefficients:
 (Intercept) 6132.1736  1001.7578   6.121 1.92e-08 ***
 time(Nile)    -2.7143     0.5216  -5.204 1.07e-06 ***
 ---
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Signif. codes:  
+0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 Residual standard error: 150.6 on 98 degrees of freedom
 Multiple R-squared:  0.2165,	Adjusted R-squared:  0.2085 
@@ -1015,12 +1084,12 @@ Variances:
 > pred <- predict(fit, n.ahead = 30)
 > ## with 95% confidence interval
 > ts.plot(Nile, pred$pred,
-+         pred$pred + 1.96*pred$se, pred$pred -1.96*pred$se, col=c(1,2,1))
+         pred$pred + 1.96*pred$se, pred$pred -1.96*pred$se, col=c(1,2,1))
 > par(mfrow=c(1,1))
 > 
 \end{Sinput}
 \end{Schunk}
-\includegraphics{alles-055}
+\includegraphics{alles-053}
 \caption{Fitting a Structural Model}
 \end{figure}
 
@@ -1034,7 +1103,7 @@ Variances:
 > 
 \end{Sinput}
 \end{Schunk}
-\includegraphics{alles-056}
+\includegraphics{alles-054}
 \caption{Models diagnostics}
 \end{figure}
 
@@ -1064,13 +1133,13 @@ Variances:
 > nile_filt <- dlmFilter(Nile, nile_mod)
 > nile_smooth <- dlmSmooth(nile_filt) # estimated "true" level
 > plot(cbind(Nile, nile_smooth$s[-1]), plot.type = "s",
-+      col = c("black", "red"), ylab = "Level",
-+      main = "Nile river", lwd = c(2, 2)) 
+      col = c("black", "red"), ylab = "Level",
+      main = "Nile river", lwd = c(2, 2)) 
 > for (i in 1:10) # 10 simulated "true" levels 
-+     lines(dlmBSample(nile_filt[-1]), lty=2, col="blue")
+     lines(dlmBSample(nile_filt[-1]), lty=2, col="blue")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{alles-058}
+\includegraphics{alles-056}
 \caption{dlm Model}
 \end{figure}
 
@@ -1084,8 +1153,12 @@ plot.gam(gamnile,residuals = T, se=T, main="GAM-Model")
 
 
 
-
-\section{compabitily with linux and other computers}
+\section{compabitily with Linux and Windows when working together on a sweave document.}
+If you have Linux and have problems working on a same sweave document with Windows users because the line breaks and other text configurations are different, try to type:
+#<<>>=
+#(on the terminal)
+#unix2dos yourfilename.Rnw
+#@
 
 
 \section{Links and Further Reading}%-----------------------------------------------------------------------------------------------
