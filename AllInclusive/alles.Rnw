@@ -783,8 +783,12 @@ plot.gam(gamnile,residuals = T, se=T, main="GAM-Model")
 
 
 
-
-\section{compabitily with linux and other computers}
+\section{compabitily with Linux and Windows when working together on a sweave document.}
+If you have Linux and have problems working on a same sweave document with Windows users because the line breaks and other text configurations are different, try to type:
+<<>>=
+(on the terminal)
+unix2dos yourfilename.Rnw
+@
 
 
 \section{Links and Further Reading}%-----------------------------------------------------------------------------------------------
