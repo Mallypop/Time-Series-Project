@@ -1,0 +1,1366 @@
+\documentclass[10pt, a4paper]{article} %or article has only section and below, book and report also have chapter: http://texblog.org/2007/07/09/documentclassbook-report-article-or-letter/
+\usepackage{float}
+\usepackage[utf8]{inputenc} % use utf8 encoding of symbols such as umlaute for maximal compatibility across platforms
+\usepackage{caption} % provides commands for handling caption sizes etc.
+\usepackage[a4paper, left=30mm, right=30mm, top=25mm, bottom=20mm]{geometry} % to easily change margin widths: https://www.sharelatex.com/learn/Page_size_and_margins
+\usepackage[bottom]{footmisc} % I love footnotes! And they should be down at the bottom of the page!
+\usepackage{graphicx} % when using figures and alike
+\usepackage[hidelinks]{hyperref} % for hyperreferences (links within the document: references, figures, tables, citations)
+\usepackage{euler} % a math font, only for equations and alike; call BEFORE changing the main font; alternatives: mathptmx, fourier,
+%\usepackage{gentium} % for a different font; you can also try: cantarell, charter, libertine, gentium, bera, ... http://tex.stackexchange.com/questions/59403/what-font-packages-are-installed-in-tex-live
+%------------------------------------------------------------------------------------------------------
+%------- text size settings --------------
+\setlength{\textwidth}{16cm}%
+\setlength{\textheight}{25cm} %23
+%(these values were used to fill the page more fully and thus reduce the number of pages!)
+\setlength{\topmargin}{-1.5cm} %0
+\setlength{\footskip}{1cm} %
+%\setlength{\hoffset}{0cm} %
+%\setlength{\oddsidemargin}{1cm}%
+%\setlength{\evensidemargin}{-.5cm}%
+\setlength{\parskip}{0cm} % Abstand zwischen AbsÃ¤tzen
+% ----------------------------------------------------------------
+\renewcommand{\textfraction}{0.2} % allows more space to graphics in float
+\renewcommand{\topfraction}{0.85}
+%\renewcommand{\bottomfraction}{0.65}
+\renewcommand{\floatpagefraction}{0.70}
+\frenchspacing %http://texwelt.de/wissen/fragen/1154/was-ist-french-spacing-was-macht-frenchspacing
+%------------------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------------------
+
+\begin{document}
+\SweaveOpts{concordance=TRUE, keep.source=TRUE, continue=" "}
+\setkeys{Gin}{width=0.6\textwidth}
+\title{Time Series Analysis - A Tutorial}
+\author{Rosskopf,E.; Cordes, M.; Lumiko, J.}
+% for more control, multiple affiliations, line breaks and alike, use the authblk package!!
+\date{\today} % !!use package isodate for more control of date formatting!!
+\maketitle
+\abstract{Tutorial for time series analysis in R... }
+\tableofcontents
+\pagebreak
+
+<<echo=false>>=
+options(continue=" ")
+options(width=60)
+
+@
+
+\section{Introduction}%------------------------------------------------------------------------------------
+\noindent This tutorial assumes that the reader has some basic knowledge of time series analysis, and the principal focus of the tutorial is not to explain time series analysis, but rather to explain how to carry out these analyses using R.\\
+\\This chapter covers some fundamental theory and is meant to give you a better understanding about the following chapters that give attention to the analysis of time series. 
+
+\subsection{Definition}
+\noindent A time series is a record of values of a certain variable of interest taken at different points in time. Data are observed at equally spaced time intervals (Discrete time series) and the method of measurement is supposed to be consistent over time.\\
+
+\subsection{Applications}
+
+\noindent Depending on the field of work, time series analysis can be useful for several applications.\\
+
+\noindent \textbf{Geosciences and meteorology}\\
+\begin{itemize} 
+\item Weather forecasting, trends in weather patterns\\
+\end{itemize}
+\textbf{Business and finance (econometrics)}\\
+\begin{itemize} 
+\item Stock market analysis, business forecasting\\
+\end{itemize} 
+\noindent \textbf{Multivariate statistical data analysis}\\
+\begin{itemize} 
+\item RS image analysis\\
+\end{itemize} 
+\textbf{Medicine}\\
+\begin{itemize}
+\item Epidemic analysis
+\end{itemize}
+
+
+\subsection{Goals depending on the study question}%---------------------------
+
+\textbf{Climatologist interested in global warming}\\
+\begin{itemize}
+\item Interested in the long term trend of CO2 or temperature, thus ignoring the daily/monthly/seasonal cycles\\
+\end{itemize}
+\textbf{Economist interested in demand for electricity}\\
+\begin{itemize}
+\item Interested in the long term trends(due to population growth? Global warming?) but also the daily/monthly/seasonal peaks\\
+\end{itemize}
+\textbf{Epidemiologist interested in preparing for the flu season}\\
+\begin{itemize}
+\item  Not really interested in long term trends, the focus is set more on monthly/seasonal cycles and errors (abnormal spikes in the flu rates)
+\end{itemize}
+
+\subsection{Decomposition}%---------------------------
+Decomposing a time series means separating it into its constituent components, which are usually a trend component and an irregular component, and if it is a seasonal time series, a seasonal component:\\
+
+\noindent 1.) \textbf{Trend}\\
+\\
+2.) \textbf{Cycles} (including seasonal)\\
+\\
+3.) \textbf{Irregular components}\\
+\\
+These components can be described as follows:\\
+\\
+\\
+\noindent {\Large X}t{\Large = T}t{\Large +S}t{\Large +C}t{\Large +R}t\\
+\\
+\\
+\noindent where:\\
+\\
+\textbf{Xt} = Value of the series at time t\\
+\textbf{Tt} = trend component of the series\\
+\textbf{St} = Cyclical or seasonal component with a period S\\
+\textbf{Rt} = Random effect for which we have no explanation\\
+\\
+\textbf{Note: This idea is very old and is now out of favor but it is still widely used}
+
+\pagebreak
+\subsubsection{Decomposing Seasonal Data}%---------------------------------------------------------------
+
+A seasonal time series consists of a \textbf{trend component}, a \textbf{seasonal component} and an \textbf{irregular component}. Decomposing the time series means separating the time series into these three components: that is, estimating these three components.\\
+
+\noindent To estimate the trend component and seasonal component of a seasonal time series that can be described using an additive model, we can use the \textbf{“decompose()”} function in R. This function estimates the trend, seasonal, and irregular components of a time series that can be described using an additive model.\\
+\\
+\noindent The function “decompose()” returns a list object as its result, where the estimates of the seasonal component, trend component and irregular component are stored in named elements of that list objects, called “seasonal”, “trend”, and “random” respectively.\\
+\\
+\\
+\begin{figure}[h]
+\centering
+<<label=Deathplot,fig=TRUE,Echo = FALSE>>=
+plot(ldeaths)
+@
+\caption{Plot of monthly deaths from lung diseases in the UK}
+\end{figure}
+
+\textbf{Example: Decomposition of monthly deaths from lung diseases in the UK}
+\begin{figure}[H]
+\centering
+<<label=Decomposition,fig=TRUE,Echo = FALSE>>=
+ldeathcomponents = decompose(ldeaths)
+plot(ldeathcomponents)
+@
+\caption{Decomposition of monthly deaths from lung diseases in the UK}
+\end{figure}
+\subsection {Stationarity and differencing}%---------------------------------------------------------------
+A stationary time series is one whose statistical properties such as \textbf{mean, variance, autocorrelation, etc.} are all \textbf{constant over time}. Most statistical forecasting methods are based on the assumption that the time series can be rendered approximately stationary (i.e., "stationarized") through the use of mathematical transformations.\\
+
+ A \textbf{stationarized series} is relatively \textbf{easy to predict}: you simply predict that its \textbf{statistical properties will be the same in the future as they have been in the past!} The predictions for the stationarized series can then be "untransformed," by reversing whatever mathematical transformations were previously used, to obtain predictions for the original series. (The details are taken care of by R.) \\
+ \\
+Thus, finding the sequence of transformations needed to stationarize a time series often \textbf{provides important clues in the search for an appropriate forecasting model}.  Stationarizing a time series through \textbf{differencing} (where needed) is an important part of the process of fitting an ARIMA mode.\\
+\\
+Another reason for trying to stationarize a time series is to be able to obtain \textbf{meaningful sample statistics} such as means, variances, and correlations with other variables. Such statistics are useful as \textbf{descriptors of future behavior} only if the series is stationary.\\
+\\
+ For example, if the \textbf{series is consistently increasing over time}, the sample mean and variance will grow with the size of the sample, and they will \textbf{always underestimate the mean and variance in future periods}. And if the mean and variance of a series are not well-defined, then neither are its correlations with other variables. \textbf{For this reason you should be cautious about trying to extrapolate regression models fitted to nonstationary data.}
+\\
+Most business and economic time series are far from stationary when expressed in their original units of measurement, and even after deflation or seasonal adjustment they will typically still exhibit trends, cycles, random-walking, and other non-stationary behavior.\\
+\\
+If the series has a stable long-run trend and tends to revert to the trend line following a disturbance, it may be possible to stationarize it by de-trending (e.g., by fitting a trend line and subtracting it out prior to fitting a model, or else by including the time index as an independent variable in a regression or ARIMA model), perhaps in conjunction with logging or deflating.\\
+\\
+Such a series is said to be trend-stationary. However, sometimes even de-trending is not sufficient to make the series stationary, in which case it may be necessary to transform it into a series of period-to-period and/or season-to-season differences.  If the mean, variance, and autocorrelations of the original series are not constant in time, even after detrending, perhaps the statistics of the changes in the series between periods or between seasons will be constant.\\
+\\   
+Such a series is said to be difference-stationary.  (Sometimes it can be hard to tell the difference between a series that is trend-stationary and one that is difference-stationary, and a so-called unit root test may be used to get a more definitive answer.)
+
+\subsubsection{How to make a series X stationary}%---------------------------------------------------------------
+
+\textbf{1.) Check if there is variance that changes with time}\\
+\begin{itemize}
+\item Make variance constant with log or square root transformation\\
+\item Call the transformed data X*\\
+\end{itemize}
+\noindent \textbf{2.) Remove the trend in mean with regular differencing or fitting a trend line}\\
+\begin{itemize}
+\item Call the new series X**\\
+\item The correlogram of X** should only have a few significant spikes at small lags\\
+\end{itemize}
+\noindent \textbf{3.) If there is seasonal cycle left in the data, we must seasonally difference the series too}\\
+\begin{itemize}
+\item Call the new series X**\\
+\end{itemize}
+
+%\pagebreak
+\subsection{Important terminology}%---------------------------------------------------------------
+
+\textbf{Dependence}\\
+\\
+Correlation of observations of one variable at one point in time with observations of the same variable at prior points in time \textbf{(Serial correlation / autocorrelation)}\\
+\\
+\textbf{Stationarity}\\
+\\
+The \textbf{mean and variance} of the series \textbf{remains constant} over the time series (e.g., no systematic change in the mean, no trend)\\
+\\
+\textbf{Differencing}\\
+\\ 
+Data pre-processing step which de-trends the data to achieve stationarity\\
+
+\noindent \textbf{Specification}\\
+
+\noindet Using \textbf{diagnostic tests}, specifying the type of time series model to apply to the series\\
+\\
+\textbullet Auto-regressive(AR), Moving average (MA), ARMA (combined) or ARIMA (combined integrated)\\
+\\
+\textbullet Non linear models also possible
+\pagebreak
+
+
+\section{Getting started}%------------------------------------------------------------------------------------
+\subsection{Packages}%---------------------------------------------------------------
+Before we get started, please make sure to set a working directory and download the necessary packages listed below. To install them, type:
+\\
+<<eval=FALSE>>=
+install.packages(tseries)
+install.packages(nlme)
+install.packages(car)
+install.packages(knitr)
+install.packages(xtable)
+install.packages(SweaveListingUtils)
+install.packages(stats)
+install.packages(forecast)
+install.packages(AICcmodavg)
+install.packages(mgcv)
+install.packages(dlm)
+install.packages(TTR)
+
+@
+
+
+<< tidy=TRUE>>=
+library(tseries)
+library(nlme)
+library(car)
+library(knitr)
+library(xtable)
+library(SweaveListingUtils)
+library(stats)
+library(forecast)
+library(AICcmodavg)
+library(TTR)
+library(mgcv)
+library(dlm)
+#setwd("//csrv05/public$/Elenamarlene/BestpracticeR/timeseries/Allinclusive/")
+@
+
+
+\subsection{Functions needed for this tutorial}%---------------------------------------------------------------
+
+\noindent First we can write a diagnostics function with all the tests we need to perform to check if our model is adequate enough to stop the model adaptation.\\
+\
+We need to be careful if we want to check for residuals or the whole model.
+so x will be the model and x$residuals and x$fitted are the other options we need.\\
+
+<<echo=false>>=
+options(continue=" ")
+options(width=60)
+
+@
+
+<<tidy=TRUE, results=tex>>= 
+diagnostics <- function (x)
+{
+normality = shapiro.test(x$residuals); #check for normal distributed values #
+stat.res = adf.test(x$residuals); #check both residuals and fitted values
+#of the model for stationarity
+stat.fit = adf.test(x$fitted);
+x$residualsvector = as.vector(x$residuals);
+autocorr= dwt(x$residualsvector) ; #check for autocorrelation
+indep= Box.test(x$residuals, type="Ljung-Box") #check for independence
+#lag for season is df: m-1 ( 12-1)
+#write if seasonal = TRUE lag=12-1, else write nothing
+#there is high evidence that there are non-zero autocorr.
+output = list(normality, stat.res, stat.fit, autocorr, indep)
+names (output) = c("norm. distrb. of residuals", "stationarity of residuals",
+                   "stationarity of fitted values", "autocorrelation of residuals",
+                   "independence of residuals")
+return ( output )
+}
+@
+\pagebreak
+\noindent Later on for the forecast plotting, we need the histogram with the normal distribution to see weather the errors of the forecast model are well distributed:
+
+<<echo=false>>=
+options(continue=" ")
+options(width=60)
+@
+
+<< tidy=TRUE>>=
+plotForecastErrors <- function(forecasterrors)
+{
+# make a histogram of the forecast errors:
+mybinsize <- IQR(forecasterrors)/4
+mysd <- sd(forecasterrors)
+mymin <- min(forecasterrors) - mysd*5
+mymax <- max(forecasterrors) + mysd*3
+# generate normally distributed data with mean 0 and standard deviation mysd
+mynorm <- rnorm(10000, mean=0, sd=mysd)
+mymin2 <- min(mynorm)
+mymax2 <- max(mynorm)
+if (mymin2 < mymin) { mymin <- mymin2 }
+if (mymax2 > mymax) { mymax <- mymax2 }
+# make a red histogram of the forecast errors, with the normally distributed data overlaid:
+mybins <- seq(mymin, mymax, mybinsize)
+hist(forecasterrors, col="red", freq=FALSE, breaks=mybins)
+# freq=FALSE ensures density
+# generate normally distributed data with mean 0 and standard deviation mysd
+myhist <- hist(mynorm, plot=FALSE, breaks=mybins)
+# plot the normal curve as a blue line on top of the histogram of forecast errors:
+points(myhist$mids, myhist$density, type="l", col="blue", lwd=2)
+}
+@
+\subsection{Dataset (CO2-Concentrations)}%------------------------------------------------------------------------------------
+The first dataset we will work with consists of monthly CO2-concentrations [ppm] in the atmosphere, measured over time at the famous Mauna Loa Station on Hawaii. To download this dataset, just use the code provided below.
+<<results=hide>>=
+url<-"ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_mm_mlo.txt"
+dest<-"co2_mm_mlo.txt"
+download.file(url, dest )
+co2month=read.table(dest, skip=72)
+co2month
+@
+\noindent Note:"dest'' represents a randomly chosen name for a text file in which the CO2-dataset will be saved. Feel free to adjust the name and directory.
+\subsection{Dataset Visualization}%--------------------------------------------------------------------------
+
+It can be really useful to visualize your dataset before you transform it into a timeseries (ts) in order to detect potential errors.
+\subsubsection{Histogram \& QQ-Plot}
+<<echo=false>>=
+options(continue=" ")
+options(width=60)
+@
+
+\begin{figure}
+\centering
+<<label=fig1check,fig=TRUE, echo=FALSE>>=
+data = co2month[,c(3,5)]
+colnames(data)= c("year", "co2")
+attach(data)
+x = co2
+op = par(mfrow = c(1,2),
+mar = c(5,4,1,2)+.1,
+oma = c(0,0,2,0))
+hist(co2, freq=F, col = "cornsilk",xlab = "", main = "")
+qqnorm(x, main = ""); qqline(x,col = 'red')
+par(op)
+mtext("CO2 Concentration (ppm) Histogram and QQ Plot", line = 2.5,font = 2,cex = 1.0)
+@
+\end{figure}
+
+\subsubsection{Plotting the fitted values}
+\begin{figure}[h]
+\centering
+<<label=fig1datalm,fig=TRUE, echo=TRUE, tidy=TRUE>>=
+# Run a linear model
+datalm = lm( co2 ~ year)
+# Fit predict values
+MyData=data.frame(year=seq(from=(1958),to=2014, by=0.1))
+pred=predict(datalm, newdata=MyData, type="response", se=T)
+# Plot the fitted values
+plot(year, co2, type="n",las=1, xlab="Year", ylab="CO2 conc. (ppm)", 
+     main="CO2 concentration in the atmosphere")
+grid (NULL,NULL, lty = 6, col = "cornsilk2")
+points(year, co2, col="cornflowerblue" )
+# Write confidence interval
+F=(pred$fit)
+FSUP=(pred$fit+1.96*pred$se.fit) # make upper conf. int.
+FSLOW=(pred$fit-1.96*pred$se.fit) # make lower conf. int.
+lines(MyData$year, F, lty=1, col="red", lwd=3)
+lines(MyData$year, FSUP,lty=1, col="red", lwd=3)
+lines(MyData$year, FSLOW,lty=1, col="red", lwd=3)
+legend("topleft",c("simple linear regression y~x", "monthly mean data"),
+pch=c(20,20), col=c("red", "cornflowerblue"))
+@
+\end{figure}
+\noindent Look at standard errors, highly underestimated, standard errors are higher in true ! p value is not right evidence , misleading :
+<<results=tex>>=
+xtable(summary(datalm))
+@
+\noindent The Histogram \& the QQ-Plot can be used to observe if there are outliers which could possibly bias the model. \\
+\noindent However the poly\-1 linear regression is not accurate in fitting the CO2-dataset. This is due to the present autocorrelation that not yet has been taken into account. Neglecting this factor will always effect the accuracy of the model results. The standard errors are lower than their true values thus giving high statistical significance with a p-value lower than it should be. The clue in statistical modelling is to present the correct statistical evidence, which would be highly biased with a linear model.\\
+\subsection{Dataset Transformation}
+It is essential to transform your dataset into a timeseries (ts) if you seek for an accurate and extensive analysis of the data.
+\noindent The data stored as a dataframe needs to be transformed with the important columns into the class of a time series to continue working on it properly. If you have monthly data you have to set the deltat of the function ts() to deltat=1/12 describing the sampling period parts between successive values xt and xt+1. Your time series should somehow look like table 1.\\
+\\
+\noindent \textbf{Original Data}\\
+<<results=tex>>=
+xtable(head(data), caption="Original CO2-Data")
+@
+\noindent \textbf{Transformation}\\
+<<results=tex>>=
+yourts=ts(co2, c(1958,3),c(2014,10), deltat=1/12)
+class(yourts)
+time = time(yourts)
+
+@
+%<<results=tex, echo=FALSE, print=TRUE >>=
+%print(xtable(yourts, digits=2, label="yourts",caption="Your time series for monthly mean data"), size="\\tiny")
+%@
+\pagebreak
+\subsection{Time-Series Visualization}%------------------------------------------------------------------------------------
+It is important to get a quick overview of your data. Some simple plots for visualization are quite helpful.
+\subsubsection{Time-Series Plot}
+\begin{figure}[H]
+\centering
+<<label=fig1visualize,fig=TRUE, echo=TRUE, tidy=TRUE>>=
+par(mfrow=c(1,1))
+plot.ts(yourts,las=1, xlab="Year", ylab="CO2 conc. (ppm)",
+        main="CO2 concentration in the atmosphere")
+grid (NULL,NULL, lty = 6, col = "cornsilk2")
+points(yourts, col="cornflowerblue" )
+k <- 5
+lines(year,filter(co2, rep(1/k,k) ),col = 'red', type="l", lwd = 3)
+legend("topleft",c("simple moving average", "monthly mean data"),
+pch=c(20,20), col=c("red", "cornflowerblue"))
+@
+\caption{Visualization of the CO2 Concentrations}
+\label{fig1visualize}
+\end{figure}
+\noindent \textbf{Note: The red line in plot \ref{fig1visualize} was computed with a simple moving average. It is not enough to just run a MA.}\\
+%\pagebreak
+\subsubsection{ACF, PACF, SPECTRUM}
+\noindent Since time-series data usually violates the independence assumption of the model, the standard error is potentially too small. As the data are regularly spaced in time, we can easily employ the autocorrelation function to investigate residual correlations in the model errors.\\
+\\
+\textbf{The acf() function} can be used for that, which produces a plot of the correlogram. Another nice procedure is to run the \textbf{autocorrelation function} with its complementary \textbf{partial acf} and the \textbf{spectrum} showing the spectral density of your time series at frequencies corresponding to the possibly approx. Fourier frequencies. \\
+
+\begin{figure}[H]
+\centering
+<<label=correlogramlm,fig=TRUE, echo=TRUE>>=
+acf(co2, xlab="", main = "")
+@
+\caption{ACF of CO2 Concentrations}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+<<label=correlogramres,fig=TRUE, echo=FALSE>>=
+op <- par(mfrow = c(4,1),
+mar = c(2,4,1,2)+.1,
+oma = c(0,0,2,0))
+acf(resid(datalm), xlab = "", main = "")
+pacf(resid(datalm),xlab = "", main = "")
+spectrum(resid(datalm), xlab = "", main = "")
+par(op)
+mtext("Model residual correlogram",
+line = 2.5,
+font = 2,
+cex = 1.2)
+@
+\caption{Correlogram of residuals of lm}
+\label{correlogramlm}
+\end{figure}
+
+
+Explain the acf , pacf, spectrum here. \\
+\textbf{ACF \& PACF:}\\
+\noindent The generated correlogram reveals that there are major autocorrelations. \\
+There is a strong correlation at lag 1,a weaker correlation at lag 2, and a noticeable correlation at lag 3. Such a correlation pattern is typical for an autoregressive process where most of the sequential dependence can be explained as a flow-on effect from a dependence at lag 1.\\
+\noindent In an autoregressive time series, an independent error component, or ''innovation" is associated with each time point. For an order p autoregressive time series, the error for any time point is obtained by taking the innovation for that time point, and adding a linear combination of the innovations at the p previous time points. (For the present time series, initial indications are that p = 1 might capture most of the correlation structure.)"\\ (autosmooth.pdf)\\
+\noindent \textbf{Spectrum:} easier to interpret the acf / log scaled / strong cycles where spectrum max. occurs
+Here the highest maximum is at about 0.75. 1/0.75 = 12 meaning a 12 month cycle is occuring here .\\
+\noindent The residuals in a time series are serially correlated. The ACF is waving and decreases only slowly, which could be an identification of non-stationarity ( If the ACF would drop to zero quickly, the time series would be stationary). We stop all diagnostics here for our clearly wrong model and go on to investigate the different components of our time series.\\
+\section{Decomposition of Time Series}%-----------------------------------------------------------------------------------------------------
+A time serie consists of 3 components; a trend component, an irregular (random) component and (if it is a seosonal time series) seasonal component.
+\subsection{Decomposing Seasonal Data}%----------------------------------------------------------------------------------------------------
+\noindent We can decompose the ts and plot these components:
+\begin{figure}[H]
+\centering
+<<decompose, fig=TRUE>>=
+plot(decompose(yourts))
+@
+\caption{Decomposition of the CO2 Time Series}
+\end{figure}
+\noindent We can see each component with:
+<<>>=
+yourts_components<- decompose(yourts)
+@
+<<eval=FALSE>>=
+yourts_components$seasonal
+@
+\begin{figure}[H]
+\centering
+<< label=decomposition, fig=TRUE>>=
+#we can see the trend for the first year:
+par(mfrow=c(1,2))
+ts.plot(yourts_components$seasonal[1:12])
+ts.plot(aggregate(yourts_components$seasonal))
+@
+\caption{The seasonal component across the time}
+\label{decomposition}
+\end{figure}
+It seems that our seasonal component is positive until the summer months, were it turns to be negative and turning to be positiv again in winter (see fig. ~\ref{decomposition}). And we can see in the right plot that this seasonal component is constant over all the years (see fig. ~\ref{decomposition}).
+\begin{figure}[H]
+\centering
+<< label=seasonallyadjusted, fig=TRUE>>=
+yourts_seasonallyadjusted <- yourts - yourts_components$seasonal
+par(mfrow=c(1,2))
+plot(yourts, main="TS with seasonal fl.", las=1)
+plot(yourts_seasonallyadjusted, las=1, main="removed seasonal fluctuation")
+@
+\caption{Comparison of seasonal vs. seasonally adjusted model}
+\label{decomposition2}
+\end{figure}
+\noindent It seems that our data can probably be described using an additive model, since the random fluctuations in the data are roughly constant in size over time (constant seasonal component). In some cases it might be handy to have the model without the seasonal fluctuations to depict change in the trend and local extremes easier (see fig. ~\ref{decomposition2}).
+
+\section{Modelling the time series}
+The best model for a time series needs to have residuals as white noise terms.
+There are different ways to approach this task.
+
+\subsection{Analysis of Seasonal Data with GLS}
+
+GLS estimation:\\
+If OLS is not optimal because of error term issues (as with serially correlated errors),
+can often fix with Generalized Least Squares (GLS). GLS finds some transform of the original
+model %so that the transformed model meets G-M assumptions, then do OLS on transformed
+%model, untransform to get parameters of interest if necessary \\
+
+
+\noindent After looking at the simple linear regression datalm, we were facing some serious problems with our model.
+To be sure about non-stationarity of our time series, wen can run the adf.test, giving us the result that our data is non-stationary and we need to fix it:
+<<echo=False>>=
+print(adf.test(yourts, alternative = "stationary"))
+@
+\noindent Also we need a model which is covering the serial correlation of our residuals. The ACF, PACF, spectrum above gives us certainty an the autocorrelation and the seasonality.
+The standard errors are highly underestimated, thus in the summary the p-value is too small and misleading.
+A nice model to try is GLS, which will allow for correlation of standard errors and unequel variances.
+In the GLS we have different options to choose, though our data is not spatially correlated we are not discussing spatial autocorrelation here ( further reading on:...)
+Our first try on gls will be simple:
+<<results=tex, eval=FALSE>>=
+data.glsAR = gls(yourts ~ time,cor= corAR1(acf(resid(datalm))$acf[2]))
+save(data.glsAR, file="data.glsAR.RData")
+@
+
+<<>>=
+load("data.glsAR.RData")
+@
+
+The difference will be made in the correlation structure. There are generally ( for temporal corr. interesting) five options you have:
+\begin{enumerate}
+\item corAR1: in ACF exponential decreasing values of correlation with time distance\\
+\item corARMA: either autoregressive order or moving average order or both\\
+\item corCAR1: continuous time ( time index does nto have to be integers)\\
+\item corCompSymm: correlation does not decrease with higher distance\\
+\item corSymm: general correlation only for few observations only, often overparameterized\\
+\end{enumerate}
+Our first gls model accounts for the AR1, which is clearly visible in the PACF.
+
+\begin{figure}[H]
+\centering
+<<label=correlogram,fig=TRUE>>=
+par(mfrow=c(1,2))
+acf(data.glsAR$residuals)
+pacf(data.glsAR$residuals)
+@
+\caption{Correlogram of GLS  with AR(1) structure}
+\label{corglsAR}
+\end{figure}
+
+We have still a lot of problems concerning the autocorrelation and the seasonality. One option is to allow the AR to use more parameters and/or to include a moving average or error variance to the model. This can be handled via the corARMA. We tried 2 versions, one with 1 lag and 1 moving average, the other with 2 lags and 2 moving averages.
+The 0.2 are starting values for Phi, which are in the modelling process optimized.
+The next models are thus:
+<<results=tex,eval=FALSE>>=
+data.glsARMA1 = gls ( yourts ~ time, cor = corARMA (c(0.2,0.2),p=1, q=1 ))
+data.glsARMA2 = gls ( yourts ~ time, cor=corARMA(c(0.2,0.2,0.2,0.2), p=2, q=2))
+save(data.glsARMA1, file="data.glsARMA1.RData")
+save(data.glsARMA2, file="data.glsARMA2.RData")
+@
+
+<<>>=
+load("data.glsARMA1.RData")
+load("data.glsARMA2.RData")
+@
+
+To compare all the models we use anova and the best model is so far the data.glsARMA2 with the lowest AIC and significantly better than the ARMA1, which is itself significantly better than the data.glsAR.
+<<results=verbatim, tidy=TRUE, print=TRUE, >>=
+ #run diagnostics
+diagnostics(data.glsARMA2)
+
+@
+
+\begin{figure}[h]
+\centering
+<< label=residual, fig=TRUE>>=
+plot(datalm, which = 1:1)
+#well spread is already smaller of variances
+@
+\caption{Residuals fitted vs. observed in LM}
+\label{residual}
+\end{figure}\\
+
+\begin{figure}[h]
+\centering
+<< label=residual, fig=TRUE>>=
+plot(data.glsARMA2)
+@
+\caption{Residuals fitted vs. observed in GLS}
+\label{residual}
+\end{figure}
+
+\noindent function writing: if anovaAIC lowest, choose this as bestmodel
+But still we have seasonal problems here. We should therefore include a seasonal term.
+Try to fit for seasonal component and autocorrelation with best corstruct:
+
+<<results=tex, eval=FALSE, messages= FALSE>>=
+seas = cycle(yourts)
+dataseasongls = gls(yourts ~ time + factor(seas), cor=corARMA( c(0.2,0.2,0.2, 0.2),
+                p=2, q=2)) #use bestmodel corStruct
+save(dataseasongls, file="dataseasongls.RData")
+@
+
+<<>>=
+load("dataseasongls.RData")
+@
+
+\begin{figure}[h]
+\centering
+<<echo=TRUE, fig=TRUE, label=corseas>>=
+par(mfrow=c(2,1))
+acf(dataseasongls$residuals)
+pacf(dataseasongls$residuals)
+@
+\caption{Correlogram of season included model}
+\label{corseas}
+\end{figure}
+
+
+\begin{figure}[h]
+\centering
+<<label=resseas,fig=TRUE, echo=TRUE>>=
+par(mfrow=c(1,1))
+ts.plot(dataseasongls$residuals) 
+#puuhh gar nich mal soo gut
+@
+\caption{Residuals of season included model}
+\label{resseas}
+\end{figure}
+
+print(anova(data.glsAR, data.glsARMA1, data.glsARMA2, dataseasongls))
+oh boy cannot compare gls with different fixed effects, REML comparisons not meaningful, added a fixed effect: factor(seas)
+so, maybe just look at AIC separately 
+
+AIC smallest value best value = best model (trade off blabla)
+
+<<results=tex>>=
+AIC(data.glsARMA2)
+AIC(dataseasongls)
+#write function choosing best model 
+@
+
+\begin{figure}[h]
+\centering
+<<results=tex, fig=TRUE, tidy=TRUE>>=
+ts.plot(cbind(yourts, data.glsARMA2$fitted,dataseasongls$fitted),
+        lty=1:2, col=c(1,2,3), main="Compare mean monthly data with gls model")
+legend(1960,400,c("Original", "Fitted for Autocorrelation","Fitted for Seasonality"),
+       col=c(1,2,3),lty=c(1, 2,3))
+@
+\caption{Comparison of season included model and only autocorr. included model}
+\label{compseas}
+\end{figure}
+
+In the figure ~\ref{compseas} you see the options we were trying so far to come closer to our adequate model. One option is the ARMA2 GLS including autocorrelation, the second option is to include the seasonality and adding a fixed effect ( factor(season)) to our gls. 
+The seasonal effect inclusion clearly improves our model. But the original data is slightly curved. \\
+
+We should include a quadratic term and generalize our seasonality with a continuous sin-cos wave\:\\
+
+<<results=tex>>=
+SIN = COS = matrix(nr=length(yourts), nc=6)
+for (i in 1:6) {
+  COS[,i] <- cos(2*pi*i*time(yourts))
+  SIN[,i] <- sin(2*pi*i*time(yourts)) 
+}
+
+time = time(yourts)
+@
+also was done by hand in self writing seasonality removal above
+Thus we do not know how many changes in the wave we need to include, we include 6 changes in the wave to be certain that the next model can follow the best wave option. 
+
+Before this, add a quadratic term ( polynomial (x,2)), x = years) will change the linear regression by including a slight bending in the fitted values over time, which we saw in the original data. 
+
+<<results=tex, eval=FALSE , messages= FALSE>>=
+harmonizedgls<-gls(yourts ~ time + I(time^2) +
+                    COS[,1]+SIN[,1]+COS[,2]+SIN[,2]+
+                    COS[,3]+SIN[,3]+COS[,4]+SIN[,4]+
+                    COS[,5]+SIN[,5]+COS[,6]+SIN[,6],
+                  corr=corAR1(acf(dataseasongls$residuals)$acf[2]))
+save(harmonizedgls, file="harmonizedgls.RData")
+
+harmonizedARMAgls<-gls(yourts ~ time + I(time^2) +
+                      COS[,1]+SIN[,1]+COS[,2]+SIN[,2]+
+                      COS[,3]+SIN[,3]+COS[,4]+SIN[,4]+
+                      COS[,5]+SIN[,5]+COS[,6]+SIN[,6]
+                    , cor=corARMA(p=2, q=2))
+save(harmonizedARMAgls, file="harmonizedARMAgls.RData")
+@
+
+<<>>=
+load("harmonizedARMAgls.RData")
+load("harmonizedgls.RData")
+@
+
+<<results=verbatim, print=TRUE, messages=FALSE>>=
+AIC(harmonizedgls) #even smaller 
+AIC(harmonizedARMAgls) #even smaller 
+# xtable(anova(harmonizedgls,harmonizedARMAgls))
+@
+tja das mit der xtable print(xtable) is alles eher s...uppressiv für mein Hirn. \\
+<<results=hide, echo=FALSE, print=TRUE >>=
+#(anova(harmonizedgls,harmonizedARMAgls)),floating=FALSE)#significantly better ARMA
+@
+
+\begin{figure}[h]
+\centering
+<<results=tex, fig=TRUE, tidy=TRUE>>=
+par(mfrow=c(1,1))
+ts.plot(cbind(yourts,harmonizedARMAgls$fitted), col=c(1,3),
+        main="Compare mean monthly data with gls model")
+legend(1960,400,c("Original", "Included seasonality ",
+                  "Polynm. + seasonality"),col=c(1,2,3), pch=c(20,20,20))
+@
+\caption{Comparison of season and quadr. term included model}
+\label{compq}
+\end{figure}
+
+\linebreak
+residuals compare\\
+\begin{figure}[h]
+\centering
+<<results=tex, fig=TRUE>>=
+plot(datalm, which = 1:1)
+@
+\caption{Residuals fitted vs. obs. values}
+\label{comparison_finalgls1}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+<<results=tex, fig=TRUE>>=
+plot(data.glsARMA2)
+@
+\caption{Residuals fitted vs. obs. values ARMA}
+\label{comparison_finalgls2}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+<<results=tex, fig=TRUE>>=
+plot(harmonizedARMAgls)
+@
+\caption{Residuals fitted vs. obs. values ARMA harm.}
+\label{comparison_finalgls3}
+\end{figure}
+
+<<results=verbatim,messages=FALSE>>=
+list = as.list(diagnostics(harmonizedARMAgls))
+print(list)
+@
+
+\begin{figure}[h]
+\centering
+<<results=tex, fig=TRUE>>=
+qqnorm(harmonizedARMAgls, abline=c(0,1))
+@
+\caption{look at norm. distribution}
+\label{finalgls_norm}
+\end{figure}
+
+\linebreak
+#bestmodel with smallest AIC: \\
+<<>>=
+anova.all = anova( harmonizedgls,harmonizedARMAgls)
+#as.matrix(anova.all)
+bestmodel= anova.all$Model[anova.all$AIC ==min(anova.all$AIC)]
+bestmodel 
+#Our best model fitted by hand is the model: \Sexpr{bestmodel} ...
+@
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlrrrrrlrr}
+  \hline
+ Model & df & AIC & BIC & logLik & Test & L.Ratio & p-value \\ 
+  \hline
+harmonizedgls  &    17 & 396.86 & 473.36 & -181.43 &  &  &  \\ 
+  harmonizedARMAgls  &    20 & 360.41 & 450.40 & -160.20 & 1 vs 2 & 42.45 & 3.21739e$-$09 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+\linebreak
+
+compare standard errors: 
+<<results=tex>>=
+sqrt(diag(vcov(datalm)))
+sqrt(diag(vcov(data.glsARMA2)))
+sqrt(diag(vcov(harmonizedARMAgls))[c(1,2,3)])
+@
+\linebreak
+you see now the estimated errors are not underestimated anymore, 
+
+
+\linebreak
+
+yes this was the gls 
+there are still some diagnostics failed! 
+non normally distributed - could normalize the residuals ? 
+not independent - not important for our models used
+but the autocorrelation was solved
+and the model is now stationary 
+
+\subsection{Modelling time series with ARIMA }
+First good thing: ARIMA does not care about stationarity. If your dataset is non-stationary, it will make it stationary as good as possible. auto.arima() gives me perfect adjusted time series model with trend, seasonal component and random terms.\\
+
+
+<<results=tex, print=TRUE>>=
+autoarima = auto.arima(yourts)
+print(autoarima)
+@
+
+\begin{figure}[h]
+\centering
+<<fig=TRUE, label=fittedarima, results=tex, tidy=TRUE>>=
+fitted=fitted(autoarima)
+par(mfrow=c(1,1))
+ts.plot(cbind(yourts, harmonizedARMAgls$fitted), col=c(1,2))
+lines( fitted, col=3)
+legend(1960,400,c("Original",  "GLS", "Autoarima "),col=c(1,2,3), pch=c(20,20,20))
+@
+\caption{Fitted ARIMA values on time series}
+\label{fittedarima}
+\end{figure}
+
+
+
+\begin{figure}[h]
+\centering
+<<fig=TRUE, label=corarima, results=tex>>=
+par(mfrow=c(3,1))
+acf(autoarima$residuals)
+pacf(autoarima$residuals)
+spectrum(autoarima$residuals)
+@
+\caption{Correlogram for ARIMA}
+\label{corarima}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+<<fig=TRUE, label=qqarima, results=tex>>=
+qqnorm(autoarima$residuals)
+qqline(autoarima$residuals)
+@
+\caption{Correlogram for ARIMA}
+\label{qqarima}
+\end{figure}
+
+bestmodel with smallest AIC: 
+<<results=tex, tidy=TRUE>>=
+anova.all = anova( harmonizedgls,harmonizedARMAgls)
+bestmodel= anova.all$call[anova.all$AIC ==min(anova.all$AIC)]
+
+@
+
+\subsection{Modelling time series with gam}
+
+The GAM generalized additive model could maybe also help finding a quick solution for time series modelling. 
+
+<<results=tex, tidy=TRUE>>=
+model = gam ( yourts ~ s(time))
+summary(model)
+@
+
+\begin{figure}
+\centering
+<<results=tex,fig=TRUE, tidy=TRUE>>=
+par(mfrow=c(1,1))
+plot.gam(model, residuals=T, scheme=c(2,1), all.terms=T)
+@
+\end{figure}
+
+<<results=tex,tidy=TRUE>>=
+smoothed4gam <- gam(as.numeric(yourts) ~ s(time)  +
+                        COS[,1]+SIN[,1]+COS[,2]+SIN[,2]+
+                        COS[,3]+SIN[,3]+COS[,4]+SIN[,4]+
+                        COS[,5]+SIN[,5]+COS[,6]+SIN[,6]
+                      , cor=corARMA(p=2, q=2))
+#summary(smoothed4gam)
+AIC(smoothed4gam)
+@
+
+\begin{figure}
+\centering
+<<results=tex,fig=TRUE, tidy=TRUE>>=
+plot(smoothed4gam)
+#8.91 is the edf:array of estimated degrees of freedom for the model terms, 
+#calculated for the smoothing term s(time)
+@
+\end{figure}
+
+\section{Forecasts}%----------------------------------------------------------------------------------------------------
+We have three different options to make ( up to now)
+\begin{enumerate}
+\item predict()
+\item Holt Winters
+\item Arima forecasts
+\end{enumerate}
+
+If we have a time series that can be described using an additive model,we can short-time forecast using exponential smoothing.\\
+Preconditions: forecast errors are uncorrelated and are normally distributed with mean zero and constant variance. To check the forecast errors we have the visualization of the function from above. 
+
+\subsection{Forecast with predict()}
+We use our best gls model for this. 
+<<results=tex, tidy=TRUE>>=
+newtime= ts(start=c(2014, 10),end=c(2024,12),deltat=1/12)
+pred = predict(harmonizedARMAgls, newdata=newtime, se=T) 
+TIME <- as.numeric(time)
+time.df <- data.frame(TIME=TIME, COS, SIN)
+colnames(time.df)[-1] <- paste0("V", 1:12)
+smoothed <- gls(as.numeric(yourts) ~ TIME + I(TIME^2) + V1 + V2 + V3 + V4 + V5 
+                +V6 +V7+V8 +V9 +V10 +V11 +V12, 
+                corr=corAR1(acf(dataseasongls$residuals)$acf[2]),
+                data=time.df)
+new.df <- cbind.data.frame(TIME=as.numeric(time(newtime)), 
+                           COS=COS[1:123,], SIN=SIN[1:123,])
+colnames(new.df)[-1] <- paste0("V", 1:12)
+pred = predictSE(smoothed, newdata=new.df, se.fit=T)
+@
+
+<<results=tex, fig=TRUE, tidy=TRUE>>=
+plot(yourts, type="n",las=1, xlim=c(1960, 2025), 
+     ylim=c(300, 450), xlab="Year", ylab="CO2 conc. (ppm)", 
+     main="CO2 concentration in the atmosphere")
+grid (NULL,NULL, lty = 6, col = "cornsilk2") 
+points(yourts ,type="l" )
+par(mfrow=c(1,1))
+lines(as.numeric(time(newtime)), pred$fit, col="red")
+F=(pred$fit)
+FSUP=(pred$fit+1.96*pred$se.fit) # make upper conf. int. 
+FSLOW=(pred$fit-1.96*pred$se.fit) # make lower conf. int. 
+lines(new.df$TIME, FSUP,lty=1, col="grey", lwd=3)
+lines(new.df$TIME, FSLOW,lty=1, col="grey", lwd=3)
+lines(new.df$TIME, F, lty=1, col="red", lwd=1)
+legend("topleft",c("forecast for 10 years", "monthly mean data", "CI"), 
+       pch=c(20,20), col=c("red", "black", "grey"))
+@
+
+
+\subsection{Holtwinters forecast function}
+Forecasting: from past values (x1,x2,x3,...,xn) want to predict future values x(n+k), \\
+holtwinters explanation: \\
+#the alpha value tells us the weight of the previous values for the forecasting \\
+#values of alpha that are close to 0 mean that little weight is placed on the most recent \\ observations when making forecasts of future values\\
+#gamma is for the seasonality \\
+if alpha is near 1, little smoothing, at is approx. xt \\
+alpha is zero, highly smoothed estimates\\
+a = 0.2 compromise figure, change in mean between t-1 and t likel smaller than variance\\
+
+not specify aphla, beta, gamma to include errors, trend and seasonal component in the forecast\\
+We use the original data for hw()\\
+And predict in the period = 120* 1 month = 10 years\\
+<<results=tex, tidy=TRUE>>=
+forecast <- HoltWinters(yourts)
+forecast10 <- forecast.HoltWinters(forecast,h=120)
+@
+
+Lets see the plot\\
+<<results=tex, tidy=TRUE>>=
+par(mfrow=c(1,1))
+plot.forecast(forecast10,shadecols = "oldstyle")
+@
+check for the autocorrelation of the future values\\
+<<results=tex, fig=TRUE, tidy=TRUE>>=
+par(mfrow=c(2,1))
+acf(forecast10$residuals)
+pacf(forecast10$residuals)
+@
+and do the diagnostics on it\\
+<<results=tex, tidy=TRUE>>=
+list = as.list(diagnostics(forecast10))
+print(list)
+@
+
+\subsection{ARIMA forecast function}
+Now we try to forecast with the autoarima function as our bestmodel, which would save alot of time. 
+
+<<results=tex, tidy=TRUE>>=
+forecast.arima = forecast.Arima(autoarima, h=120) 
+@
+
+\subsection{Comparison of HW and ARIMA}
+Lets compare what it better. 
+
+<<results=tex, fig=TRUE, tidy=TRUE>>=
+par(mfrow=c(2,1))
+plot.forecast(forecast.arima)
+plot.forecast(forecast10)
+@
+
+#check for error distirbution with the plotForecastErrors function from above 
+<<results=tex, fig=TRUE, tidy=TRUE>>=
+par(mfrow=c(1,2))
+plotForecastErrors(forecast10$residuals)
+plotForecastErrors(forecast.arima$residuals)
+@
+\noindent The histogram of the time series shows that the forecast errors are roughly normally distributed and the mean seems to be close to zero.\\
+
+run diagnostics
+<<results=verbatim, tidy=TRUE>>=
+list1= as.list(diagnostics(forecast10))
+(list1)
+list2= as.list(diagnostics(forecast.arima))
+(list2)
+@
+\linebreak
+look at both zoomed in forecasts:
+<<results=tex, fig=TRUE, tidy=TRUE>>=
+par(mfrow=c(1,2))
+plot(forecast.arima, xlim=c(2010,2025), ylim=c(385,430),shadecols = "oldstyle")
+plot.forecast(forecast10 ,xlim=c(2010,2025), ylim=c(385,430),shadecols = "oldstyle")
+@
+
+
+
+\subsection{Seasonal Decomposition of Time Series by Loess}
+
+Forecasting using stl objects:
+\begin{figure}[H]
+\centering
+<<fig=true>>=
+plot(stlf(yourts, lambda=0, h =120))
+(tslm(yourts~time(yourts)))
+@
+\caption{Forecasting using Loess}
+\end{figure}
+
+\section{Dataset Nile (Non-seasonal)}
+\noindent Our example 2 contains the Measurements of the annual flow of the river Nile [m3/s] at Ashwan from 1871 to 1970. The Nile river data are included in any standard distribution of R as a time series object (i.e., a vector containing the data together with information about start/end time and sampling frequency); a detailed description of the data is given in the help file, ?Nile. \\
+\\
+First we visualize our data typing:
+
+\begin{figure}[h!]
+\centering
+<<fig=TRUE>>=
+plot(Nile, main="Annual flow of the Nile", ylab="Flow [m3/s]", xlab="years")
+@
+\caption{Annual Flow of the Nile}
+\end{figure}
+<<eval=FALSE>>=
+class(Nile)
+str(Nile)
+@
+
+\noindent Since the time-series consists of annual observations, there are no indices of a cycle/seasonality in the data. A non-seasonal time series consists of a trend and an irregular component. 
+To estimate the trend component of a non-seasonal time series that can be described using an additive model, it is common to use a smoothing method, such as calculating the simple moving average of the time series.
+
+\noindent The SMA() function in the “TTR” R package can be used to smooth time series data using a simple moving average. 
+\begin{figure}[H]
+\centering
+<<fig=TRUE>>=
+library(TTR)
+sma = SMA(Nile)
+plot(SMA(Nile,n=20))
+
+@
+\caption{Trend of the Annual Flow of the Nile}
+\end{figure}
+\pagebreak
+\noindent After using the SMA smoothing-function, we can clearly see that there was a negative trend until 1920 which was followed by a positive trend that reached its climax around 1965.until the end of the \\
+\\
+\noindent We can check if the data is stationary:
+<<>>=
+adf.test(Nile)
+kpss.test(Nile)
+@
+\\
+\\
+\\
+The data is not stationary, we can conclude that the SMA-function was not appropriate for this time-series.\\
+\\
+\noindent We try to fit a linear model to the data:\\
+<<>>=
+nilelm = lm(Nile~time(Nile))
+summary(nilelm)
+confint(nilelm)
+@
+
+\begin{figure}[H]
+\centering
+<<fig=TRUE>>=
+par(mfrow=c(1,2))
+acf(resid(nilelm))
+pacf(resid(nilelm))
+@
+\caption{Autocorelations diagnostics of the Nile Time Series}
+\end{figure}
+
+\noindent We can see that the linear model is not appropriate,the correlograms indicate a positive autocorrelation in the first lags. Next we fit the gls function to provide better estimates to account for the autocorrelation in the residual series:\\
+<<eval=FALSE>>=
+library(nlme)
+nilegls = gls(Nile ~ time(Nile),cor= corAR1(acf(resid(nilelm))$acf[2]))
+save(nilegls, file="nilegls.RData")
+@
+
+<<>>=
+load("nilegls.RData")
+@
+
+<<>>=
+summary(nilegls)
+confint(nilegls)
+@
+
+\begin{figure}[h]
+\centering
+<<fig=TRUE,split=TRUE>>=
+acf(nilegls$residuals); pacf(nilegls$residuals)
+@
+\caption{Autocorrelation diagnostics for the gls Model}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+<<fig=TRUE>>=
+plot(nilegls)
+@
+\caption{Residuals of the gls Model}
+\end{figure}
+
+\noindent The residuals look like white noise, next we test if they are independent:
+<<>>=
+Box.test(nilegls$residuals, type="Ljung-Box")
+@
+\\
+\noindent The null hypothesis can be rejected, the residuals are not independent. 
+
+% \begin{figure}[H]
+% \centering
+% <<fig=TRUE>>=
+% arnile = ar(Nile) 
+% acf(resid(arnile))
+% cpgram(ar(Nile)$resid)
+% 
+% arima(Nile, c(2, 0, 0))
+% 
+% @
+% \caption{Cumulative Peridiogram of the residuals}
+% \end{figure}
+% 
+% \noindent Fitting a autoregressive model, we can see that the residuals are well placed.
+
+
+
+\noindent We find a significant autocorrelation at the first lags only, that means that the autocorrelation decreases with the time. We see no indices of seasonality. 
+At the Partial autocorrelation plot we do not observe a significant autocorrelation. 
+
+
+\subsection{Holt Winters exponential smoothing}
+
+\begin{figure}[H]
+\centering
+<<fig=TRUE>>=
+library(forecast)
+hwn = HoltWinters(Nile,alpha = 0.2, beta = FALSE, gamma = FALSE,
+                  start.periods =c(1120,740) )
+plot(hwn)
+
+@
+\caption{Holt Winters}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+<<fig=TRUE>>=
+forecast_nile = forecast.HoltWinters(hwn, h=5)
+plot.forecast(forecast_nile, shadecols = "oldstyle")
+
+@
+\caption{Holt Winter Forecasting}
+\end{figure}
+
+\noindent The forecasts are shown as a blue line, with the 80% prediction intervals as an orange shaded area, and the 95% prediction intervals as a yellow shaded area.
+
+
+<<>>=
+acf(forecast_nile$residuals, lag.max = 20)
+pacf(forecast_nile$residuals, lag.max = 20)
+Box.test(forecast_nile$residuals, lag=20, type="Ljung-Box")
+
+@
+\noindent At the Ljung-Box test the p-value is 0.72, indicating that there is little evidence of non-zero autocorrelations in the in-sample forecast errors at lags 1-20. The residuals are now independent.
+
+\noindent We should check that the forecast errors have constant variance over time, and are normally distributed with mean zero. We can do this by making a time plot of forecast errors, and a histogram of the distribution of forecast errors.
+
+
+\begin{figure}[H]
+\centering
+<<fig=T>>=
+par(mfrow=c(1,2))
+plot.ts(forecast_nile$residuals);abline(h=0)
+plotForecastErrors(forecast_nile$residuals)
+par(mfrow=c(1,1))
+@
+\caption{Forecast Errors}
+\end{figure}
+
+\noindent The time plot of forecast errors shows that the forecast errors have roughly constant variance over time. The histogram of forecast errors show that it is plausible that the forecast errors are normally distributed with mean zero and constant variance.
+
+\subsection{ARIMA}
+
+\noindent While exponential smoothing methods do not make any assumptions about correlations between successive values of the time series, in some cases you can make a better predictive model by taking correlations in the data into account. Autoregressive Integrated Moving Average (ARIMA) models include an explicit statistical model for the irregular component of a time series, that allows for non-zero autocorrelations in the irregular component.
+\begin{figure}[H]
+\centering
+<<fig=TRUE>>=
+nile_arima = auto.arima(Nile)
+forecast_nile2 = forecast.Arima(nile_arima, h=10)
+plot.forecast(forecast_nile2, shadecols = "oldstyle")
+
+@
+\caption{Arima forecasting}
+\end{figure}
+
+Check for autocorrelations:
+\begin{figure}[H]
+\centering
+<<fig=TRUE>>=
+acf(forecast_nile2$residuals, lag.max = 20)
+Box.test(forecast_nile2$residuals, lag=20, type="Ljung-Box")
+@
+\caption{acf of the residuals}
+\end{figure}
+\noindent There is little evidence of non-zero autocorrelations in the in-sample forecast errors at lags 1-20. The residuals are now independent and the autocorrelation plots look nice.
+
+\begin{figure}[H]
+\centering
+<<fig=TRUE>>=
+par(mfrow=c(1,2))
+plot.ts(forecast_nile2$residuals); abline(h=0)
+plotForecastErrors(forecast_nile2$residuals)
+@
+\caption{Residuals and Errors}
+\end{figure}
+
+
+\noindent And we perform the Durbin Watson Test to check for autocorrelations.
+<<>>=
+library(car)
+dwt(as.vector(nilegls$residuals)) 
+@
+\noindent The Durbin Watson Test of the residuals shows that there is no autocorrelation and the residuals are independent.
+
+
+\subsection{Structural time series models}
+
+\noindent The function StructTS fits a model by maximum likelihood.
+<<>>=
+fit <- StructTS(Nile, type = "level")
+fit
+@
+\noindent The maximum likelihood estimates (MLEs) of the level and observation error variances, 1469 and 15099, respectively, are included in the output as the coefficients of fit. 
+\begin{figure}[H]
+\centering
+<<fig=TRUE>>=
+par(mfrow = c(3, 1))
+plot(Nile)
+# local level model (contemporaneous smoothing)
+lines(fitted(fit), lty = "dashed", col=4) 
+# fixed-interval smoothing
+lines(tsSmooth(fit), lty = "dotted", col = 6) 
+legend("bottomright" ,col = c(4,6),c("filtered","smoothed"),
+       lty=c("dashed", "dotted"), bty="n", cex=0.8)
+plot(residuals(fit)); abline(h = 0, lty = 3)
+# local trend model (constant trend fitted)
+fit2 <- StructTS(Nile, type = "trend")
+pred <- predict(fit, n.ahead = 30)
+# with 95% confidence interval
+ts.plot(Nile, pred$pred,
+        pred$pred + 1.96*pred$se, pred$pred -1.96*pred$se,
+        col=c(1,2,1))
+par(mfrow=c(1,1))
+
+@
+\caption{Fitting a Structural Model}
+\end{figure}
+
+\noindent The function tsdiag can be called on an object of class StructTS to obtain diagnostic plots based on the standardized one-step-ahead forecast errors.
+\begin{figure}[H]
+\centering
+<<fig=TRUE>>=
+tsdiag(fit)
+tsdiag(fit2)
+
+@
+\caption{Models diagnostics}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+<<label=forecasted_values, fig=TRUE>>=
+library(forecast)
+plot(forecast(fit2, level = c(50,90), h = 10), xlim = c(1950, 1980), 
+     shadecols = "oldstyle")
+@
+\caption{Forecasted values}
+\label{forecast_values}
+\end{figure}
+
+\noindent Forecasts for structural time series, as objects of class StructTS, can be obtained by either the method function predict or forecast in package forecast (Hyndman 2011; Hyndman and Khandakar 2008). This package provides also a convenient plot method function for the resulting object of class forecast. Figure \ref{forecasted_values}, obtained with the code below, shows the forecasted Nile river data until 1980, togeher with 50% and 90% probability intervals.
+
+\subsection{The package dlm and the Kalman filter }
+\noindent A polynomial DLM (a local level model is a polynomial DLM of order 1, a local linear trend is a polynomial DLM of order 2), is easily defined in dlm through the function dlmModPoly.The function simulates one draw from the posterior distribution of the state vectors.
+
+\begin{figure}[H]
+\centering
+<<fig=TRUE>>=
+library(dlm)
+
+nile_mod <- dlmModPoly(1, dV = 15099.8, dW = 1468.4)
+#values taken from the coefficients of fit
+nile_filt <- dlmFilter(Nile, nile_mod)
+nile_smooth <- dlmSmooth(nile_filt) # estimated "true" level
+plot(cbind(Nile, nile_smooth$s[-1]), plot.type = "s",
+     col = c("black", "red"), ylab = "Level",
+     main = "Nile river", lwd = c(2, 2)) 
+for (i in 1:10) # 10 simulated "true" levels 
+    lines(dlmBSample(nile_filt[-1]), lty=2, col= "mediumblue"   )
+@
+\caption{dlm Model}
+\end{figure}
+
+\subsection{GAM (Generalized Additive Model)}
+\begin{figure}[H]
+\centering
+<<fig=TRUE>>=
+library(mgcv)
+niletime = time(Nile)
+gamnile = gam(as.numeric(Nile) ~ s(niletime),cor=corARMA(p=2, q=0))
+plot.gam(gamnile,residuals = T, se=T, main="GAM-Model", shade = T,
+         seWithMean = T, all.terms = T , cex=2 )
+@
+\caption{GAM Model}
+\end{figure}
+
+\noindent We can check which model has the best AIC:
+<<>>=
+AIC(nilelm)
+AIC(nilegls)
+AIC(nile_arima)
+AIC(gamnile)
+@
+\noindent The nile\_arima Model seems to be the best one.
+
+
+\section{Compabitily with Linux and Windows}
+\noindent If you have Linux and have problems working on a same sweave document with Windows users because the line breaks and other text configurations are different, try to type on the terminal\\
+unix2dos yourfilename.Rnw
+
+
+
+
+\section{Links and Further Reading}%-----------------------------------------------------------------------------------------------
+and in:\\
+http://cran.r-project.org/web/views/TimeSeries.html\\
+Another Exemple Datasets are avaliable at:\\
+http://www.comp-engine.org/timeseries/browse-data-by-category\\
+https://datamarket.com/data/list/?q=provider:tsdl\\
+\section{Acknowledgements}%------------------------------------------------------------------------------------------------------
+Don't forget to thank TeX and R and other opensource communities if you use their products! The correct way to cite R is shown when typing ``\texttt{citation()}'', and ``\texttt{citation("mgcv")}'' for packages.
+\clearpage
+
+
+\end{document}
+
