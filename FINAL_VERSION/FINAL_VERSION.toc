@@ -1,0 +1,40 @@
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}
+\contentsline {subsection}{\numberline {1.1}Definition}{3}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}Applications}{3}{subsection.1.2}
+\contentsline {subsection}{\numberline {1.3}Goals depending on the study question}{3}{subsection.1.3}
+\contentsline {subsection}{\numberline {1.4}Decomposition}{4}{subsection.1.4}
+\contentsline {subsubsection}{\numberline {1.4.1}Decomposing Seasonal Data}{5}{subsubsection.1.4.1}
+\contentsline {subsection}{\numberline {1.5}Stationarity and differencing}{5}{subsection.1.5}
+\contentsline {subsubsection}{\numberline {1.5.1}How to make a series X stationary}{6}{subsubsection.1.5.1}
+\contentsline {subsection}{\numberline {1.6}Important terminology}{7}{subsection.1.6}
+\contentsline {section}{\numberline {2}Getting started}{8}{section.2}
+\contentsline {subsection}{\numberline {2.1}Packages}{8}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Applied functions}{8}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}Dataset (CO2-Concentrations)}{9}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}Dataset Visualization}{9}{subsection.2.4}
+\contentsline {subsubsection}{\numberline {2.4.1}Plotting the fitted values}{10}{subsubsection.2.4.1}
+\contentsline {subsection}{\numberline {2.5}Dataset Transformation}{11}{subsection.2.5}
+\contentsline {subsection}{\numberline {2.6}Time-Series Visualization}{11}{subsection.2.6}
+\contentsline {subsubsection}{\numberline {2.6.1}Time-Series Plot}{12}{subsubsection.2.6.1}
+\contentsline {subsubsection}{\numberline {2.6.2}ACF, PACF, SPECTRUM}{12}{subsubsection.2.6.2}
+\contentsline {section}{\numberline {3}Decomposition of Time Series}{15}{section.3}
+\contentsline {subsection}{\numberline {3.1}Decomposing Seasonal Data}{15}{subsection.3.1}
+\contentsline {section}{\numberline {4}Modelling the time series}{16}{section.4}
+\contentsline {subsection}{\numberline {4.1}Analysis of Seasonal Data with GLS}{17}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Modelling time series with ARIMA }{24}{subsection.4.2}
+\contentsline {section}{\numberline {5}Forecasts}{27}{section.5}
+\contentsline {subsection}{\numberline {5.1}Forecast with predict()}{27}{subsection.5.1}
+\contentsline {subsection}{\numberline {5.2}Holtwinters forecast function}{28}{subsection.5.2}
+\contentsline {subsection}{\numberline {5.3}ARIMA forecast function}{29}{subsection.5.3}
+\contentsline {subsection}{\numberline {5.4}Comparison of HW and ARIMA}{29}{subsection.5.4}
+\contentsline {subsection}{\numberline {5.5}Seasonal Decomposition of Time Series by Loess}{30}{subsection.5.5}
+\contentsline {subsection}{\numberline {5.6}Modelling time series with gam}{31}{subsection.5.6}
+\contentsline {section}{\numberline {6}Dataset Nile (Non-seasonal)}{33}{section.6}
+\contentsline {subsection}{\numberline {6.1}Holt Winters exponential smoothing}{39}{subsection.6.1}
+\contentsline {subsection}{\numberline {6.2}ARIMA}{41}{subsection.6.2}
+\contentsline {subsection}{\numberline {6.3}Structural time series models}{44}{subsection.6.3}
+\contentsline {subsection}{\numberline {6.4}The package dlm and the Kalman filter}{47}{subsection.6.4}
+\contentsline {subsection}{\numberline {6.5}GAM (Generalized Additive Model)}{48}{subsection.6.5}
+\contentsline {section}{\numberline {7}Compabitily with Linux and Windows}{48}{section.7}
+\contentsline {section}{\numberline {8}Conclusion and helpful links}{49}{section.8}
+\contentsline {section}{\numberline {9}Acknowledgements}{49}{section.9}
