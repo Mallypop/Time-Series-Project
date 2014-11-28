@@ -185,7 +185,7 @@ Such a series is said to be difference-stationary.  (Sometimes it can be hard to
 \item Call the new series X**\\
 \end{itemize}
 
-%\pagebreak
+\pagebreak
 \subsection{Important terminology}%---------------------------------------------------------------
 
 \textbf{Dependence}\\
@@ -1123,15 +1123,6 @@ plot(stlf(yourts, lambda=0, h =120))
 \end{figure}
 
 
-
-
-\section{compabitily with Linux and Windows when working together on a sweave document.}
-If you have Linux and have problems working on a same sweave document with Windows users because the line breaks and other text configurations are different, try to type:
-
-
-\section{Links and Further Reading}%-----------------------------------------------------------------------------------------------
-
-
 \subsection{Modelling time series with gam}
 
 The gam() generalized additive model could maybe also help finding a quick solution for time series modelling. Thus this model is not adequately adjusted there are examples for modelling also seasonally components with gam(). We present it here for further reading on it, for example on this website: ... 
@@ -1485,17 +1476,19 @@ AIC(gamnile)
 
 
 
-
+\pagebreak
 \section{Links and Further Reading}%-----------------------------------------------------------------------------------------------
-and in:\\
+\textbf{Time-Series Analysis in R:}
+\\
 http://cran.r-project.org/web/views/TimeSeries.html\\
-Another Exemple Datasets are avaliable at:\\
+\\
+\textbf{Additional Example-Datasets:}
+\\
 http://www.comp-engine.org/timeseries/browse-data-by-category\\
 https://datamarket.com/data/list/?q=provider:tsdl\\
+\\
 \section{Acknowledgements}%------------------------------------------------------------------------------------------------------
-We like to thank the whole TeX and R community for providing us with an incredible amount of open source software. Without you this tutorial would have never been created!
-\clearpage
-
+We like to thank the whole TeX and R community for providing us with an incredible amount of open source software. Without You this tutorial would have never been created!
 
 \end{document}
 
