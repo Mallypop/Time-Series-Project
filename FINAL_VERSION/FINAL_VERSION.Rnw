@@ -237,7 +237,7 @@ library(forecast)
 library(AICcmodavg)
 library(TTR)
 library(mgcv)
-setwd("C:/Users/Mallypop/Desktop/FINAL_VERSION/")
+setwd("C:/Users/Mallypop/Desktop/Time-Series-Project/FINAL_VERSION")
 @
 
 
@@ -317,7 +317,7 @@ The first dataset in this tutorial consists of monthly data on CO2- Concentratio
 To download this dataset, just use the code provided below.
 <<results=hide>>=
 url<-"ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_mm_mlo.txt"
-dest<-"C:/Users/Mallypop/Desktop/FINAL_VERSION/run.txt"
+dest<-"C:/Users/Mallypop/Desktop/Time-Series-Project/FINAL_VERSION/run.txt"
 download.file(url, dest )
 co2month=read.table(dest, skip=72)
 co2month
