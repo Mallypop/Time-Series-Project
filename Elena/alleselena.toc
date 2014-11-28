@@ -10,17 +10,17 @@
 \contentsline {subsubsection}{\numberline {2.6.1}Time-Series Plot}{7}{subsubsection.2.6.1}
 \contentsline {subsubsection}{\numberline {2.6.2}ACF, PACF, SPECTRUM}{7}{subsubsection.2.6.2}
 \contentsline {section}{\numberline {3}Decomposition of Time Series}{9}{section.3}
-\contentsline {subsection}{\numberline {3.1}Decomposing Seasonal Data}{10}{subsection.3.1}
-\contentsline {section}{\numberline {4}Modelling the time series}{12}{section.4}
-\contentsline {subsection}{\numberline {4.1}Analysis of Seasonal Data with GLS}{13}{subsection.4.1}
-\contentsline {subsection}{\numberline {4.2}Modelling time series with ARIMA }{27}{subsection.4.2}
-\contentsline {section}{\numberline {5}Forecasts}{30}{section.5}
-\contentsline {subsection}{\numberline {5.1}Forecast with predict()}{30}{subsection.5.1}
-\contentsline {subsection}{\numberline {5.2}Holtwinters forecast function}{32}{subsection.5.2}
-\contentsline {subsection}{\numberline {5.3}ARIMA forecast function}{33}{subsection.5.3}
-\contentsline {subsection}{\numberline {5.4}Comparison of HW and ARIMA}{33}{subsection.5.4}
-\contentsline {subsection}{\numberline {5.5}Seasonal Decomposition of Time Series by Loess}{36}{subsection.5.5}
-\contentsline {section}{\numberline {6}compabitily with Linux and Windows when working together on a sweave document.}{37}{section.6}
-\contentsline {section}{\numberline {7}Links and Further Reading}{37}{section.7}
-\contentsline {subsection}{\numberline {7.1}Modelling time series with gam}{37}{subsection.7.1}
-\contentsline {section}{\numberline {8}Acknowledgements}{39}{section.8}
+\contentsline {subsection}{\numberline {3.1}Decomposing Seasonal Data}{9}{subsection.3.1}
+\contentsline {section}{\numberline {4}Modelling the time series}{11}{section.4}
+\contentsline {subsection}{\numberline {4.1}Analysis of Seasonal Data with GLS}{12}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Modelling time series with ARIMA }{19}{subsection.4.2}
+\contentsline {section}{\numberline {5}Forecasts}{22}{section.5}
+\contentsline {subsection}{\numberline {5.1}Forecast with predict()}{22}{subsection.5.1}
+\contentsline {subsection}{\numberline {5.2}Holtwinters forecast function}{23}{subsection.5.2}
+\contentsline {subsection}{\numberline {5.3}ARIMA forecast function}{24}{subsection.5.3}
+\contentsline {subsection}{\numberline {5.4}Comparison of HW and ARIMA}{24}{subsection.5.4}
+\contentsline {subsection}{\numberline {5.5}Seasonal Decomposition of Time Series by Loess}{26}{subsection.5.5}
+\contentsline {section}{\numberline {6}compabitily with Linux and Windows when working together on a sweave document.}{27}{section.6}
+\contentsline {section}{\numberline {7}Links and Further Reading}{27}{section.7}
+\contentsline {subsection}{\numberline {7.1}Modelling time series with gam}{27}{subsection.7.1}
+\contentsline {section}{\numberline {8}Acknowledgements}{29}{section.8}
